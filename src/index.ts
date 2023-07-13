@@ -53,8 +53,8 @@ for (const folder of utilFolders) {
         const filePath = join(utilPath, file);
         const util = await import(pathToFileURL(filePath).href);
         
-        client.util.set(util.name, util);
-        console.log(color.green(`Loaded utility ${color.bgCyan(util.name)}`));
+        client.util.set(util.default.name, util);
+        console.log(color.green(`Loaded utility ${color.bgCyan(util.default.name)}`));
     }
 }
 
@@ -66,21 +66,21 @@ for (const file of eventFiles) {
     const filePath = join(eventsPath, file);
     const event = await import(pathToFileURL(filePath).href);
     // Go ahead and calculate used utilities beforehand
-    const utilsToRun = client.util.filter((util) => util.event === event.name)
+    const utilsToRun = client.util.filter((util) => util.event === event.default.name)
 
     if (event.once) {
-        client.once(event.name, (...args) => {
-            event.execute(...args)
+        client.once(event.default.name, (...args) => {
+            event.default.execute(...args)
             utilsToRun.each((util) => { util.execute(...args); });
         });
     } else {
-        client.on(event.name, (...args) => {
-            event.execute(...args)
+        client.on(event.default.name, (...args) => {
+            event.default.execute(...args)
             utilsToRun.each((util) => { util.execute(...args); });
         });
     }
 
-    console.log(color.green(`Loaded event ${color.bgCyan(event.name)}`));
+    console.log(color.green(`Loaded event ${color.bgCyan(event.default.name)}`));
 }
 
 // Login to bot account

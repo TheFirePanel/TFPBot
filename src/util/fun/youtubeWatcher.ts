@@ -1,7 +1,7 @@
 import { Client, Events, TextChannel } from 'discord.js';
 import { XMLParser } from 'fast-xml-parser';
-import { Utility } from '../../types';
-import YoutubeChannel from '../../models/youtubeChannel';
+import { Utility } from '../../types.d.js';
+import YoutubeChannel from '../../models/youtubeChannel.js';
 import axios from 'axios';
 
 const youtubeWatcher: Utility = {

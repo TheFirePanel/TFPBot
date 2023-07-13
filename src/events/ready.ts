@@ -1,7 +1,7 @@
 import { Events, type Client } from 'discord.js'
 import color from 'chalk';
 
-module.exports = {
+export default {
     name: Events.ClientReady,
     once: true,
     execute(client: Client) {
