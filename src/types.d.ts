@@ -1,5 +1,5 @@
 import { Collection, Events, Interaction } from 'discord.js'
-import { Sequelize } from 'sequelize'
+import { Sequelize } from '@sequelize/core'
 
 export interface Command {
     data: string,

@@ -17,7 +17,7 @@
         "strictPropertyInitialization": false,
         
         // Modules
-        "module": "CommonJS",
+        "module": "ES2022",
         "moduleResolution": "node",
         "resolveJsonModule": true,
 
@@ -40,9 +40,9 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "lib": [
-            "ESNext"
+            "ES2022"
         ],
-        "target": "ES2021",
+        "target": "ES2022",
         "useDefineForClassFields": true
     }
 }

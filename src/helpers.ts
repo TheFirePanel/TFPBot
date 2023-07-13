@@ -1,12 +1,13 @@
-import fs = require('node:fs');
-import { green, yellow, red } from 'ansi-colors';
+import { readdirSync } from 'node:fs';
+//import colors from 'chalk';
+//const { green, yellow, red } = colors
 
 /**
  * Read a specified directory and grab compiled javascript files
  * @param path Exact path of directory to read
  */
 export function getJsFiles(path: string): string[] {
-    return fs.readdirSync(path).filter((file) => file.endsWith('.js'));
+    return readdirSync(path).filter((file) => file.endsWith('.js'));
 }
 
 export default {};
@@ -15,7 +16,7 @@ export default {};
 /**
  * Override console methods
  */
-if (process.env.NODE_ENV !== 'development') {
+/*if (process.env.NODE_ENV !== 'development') {
     (function(){
         const log = console.log;
         const warn = console.warn;
@@ -42,4 +43,4 @@ if (process.env.NODE_ENV !== 'development') {
             );
         }
     })();
-}
+}*/

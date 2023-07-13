@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { Client, Events, TextChannel } from 'discord.js';
 import { XMLParser } from 'fast-xml-parser';
 import { Utility } from '../../types';
 import YoutubeChannel from '../../models/youtubeChannel';
@@ -11,25 +11,37 @@ const youtubeWatcher: Utility = {
         refresh: true,
         data: []
     },
-    async execute() {
-        if (this.cache?.refresh) {
-            const channels = await YoutubeChannel.findAll();
+    async execute(client: Client) {
+        const announcementChannel = await client.guilds.fetch('908908014965252116')
+            .then(async (guild) => {
+                return await guild.channels.fetch('1128041309307949077')
+            })
 
-            this.cache.data = channels;
-            this.cache.refresh = false;
-        }
+        setInterval(async () => {
+            if (this.cache?.refresh) {
+                const channels = await YoutubeChannel.findAll();
 
-        let toAnnounce = [];
-        this.cache?.data.forEach(async (channel: YoutubeChannel, _) => {
-            const latestVideo = await getLatestVideo(channel.channelId);
-
-            if (latestVideo.id !== channel.latestVideo) {
-                await channel.update({
-                    latestVideo: latestVideo.id
-                });
-                toAnnounce.push(latestVideo);
+                this.cache.data = channels;
+                this.cache.refresh = false;
             }
-        })
+
+            this.cache?.data.forEach(async (channel: YoutubeChannel, _) => {
+                const latestVideo = await getLatestVideo(channel.channelId);
+
+                if (latestVideo.id !== channel.latestVideo) {
+                    console.log(`${latestVideo.author.name} has a new video, updating stored values and sending to announcement channel!`, this.name)
+
+                    await channel.update({
+                        latestVideo: latestVideo.id
+                    });
+
+                    if (announcementChannel?.isTextBased()) {
+                        (announcementChannel as TextChannel).send(latestVideo.link)
+                    }
+                }
+            })
+
+        }, 10000);
     }
 }
 

@@ -1,21 +1,21 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { config as dotenv } from 'dotenv';
+dotenv();
 
 import { REST, Routes } from 'discord.js';
-import color from 'ansi-colors';
-import fs = require('node:fs');
-import path = require('node:path');
+import color from 'chalk';
+import { join } from 'node:path';
+import { readdirSync } from 'node:fs';
 
 const commands = [];
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const foldersPath = join(__dirname, 'commands');
+const commandFolders = readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
-	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	const commandsPath = join(foldersPath, folder);
+	const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 	for (const file of commandFiles) {
-		const filePath = path.join(commandsPath, file);
+		const filePath = join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
 			commands.push(command.data.toJSON());

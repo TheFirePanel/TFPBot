@@ -1,14 +1,17 @@
-import { Table, Column, Model } from 'sequelize-typescript';
+import { Model, DataTypes } from '@sequelize/core';
+import { Attribute } from '@sequelize/core/decorators-legacy';
 
-@Table
 class YoutubeChannel extends Model {
-    @Column
+    @Attribute(DataTypes.STRING)
     declare channelId: string;
 
-    @Column
+    @Attribute(DataTypes.STRING)
     declare latestVideo: string
 
-    @Column
+    @Attribute(DataTypes.STRING)
+    declare guildId: string
+
+    @Attribute(DataTypes.STRING)
     declare addedBy: string
 }
 

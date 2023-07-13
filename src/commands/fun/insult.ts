@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 
 const insults: string[] = ['Putting this %s mid sentence to test replace reply. %s %s'];
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('insult')
         .setDescription('Provides the mentioned user with an insult!')
