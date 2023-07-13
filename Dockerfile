@@ -8,9 +8,9 @@ RUN     npm run build
 
 FROM    node:18-alpine as production-stage
 
-RUN     apt update \
-        && apt -y install ca-certificates  \
-        && useradd -m -d /home/container container
+RUN     apk update \
+        && apk add ca-certificates  \
+        && adduser -D -h /home/container container
 
 COPY    --from=build-stage /build/dist /home/container
 
