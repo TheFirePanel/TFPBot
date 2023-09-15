@@ -1,4 +1,4 @@
-import { Client, Events, TextChannel } from 'discord.js';
+import { Client, Events } from 'discord.js';
 import { XMLParser } from 'fast-xml-parser';
 import { Utility } from '../../types.d.js';
 import YoutubeChannel from '../../models/youtubeChannel.js';
@@ -12,26 +12,26 @@ const youtubeWatcher: Utility = {
         data: []
     },
     async execute(client: Client) {
-        const announcementChannel = await client.guilds.fetch('908908014965252116')
+        /*const announcementChannel = await client.guilds.fetch('908908014965252116')
             .then(async (guild) => {
                 return await guild.channels.fetch('1128041309307949077')
-            })
+            })*/
 
         setInterval(async () => {
             if (this.cache?.refresh) {
-                const channels = await YoutubeChannel.findAll();
+                const channels = await YoutubeChannel.query();
 
                 this.cache.data = channels;
                 this.cache.refresh = false;
             }
 
-            this.cache?.data.forEach(async (channel: YoutubeChannel, _) => {
+            /*this.cache?.data.forEach(async (channel: YoutubeChannel, _) => {
                 const latestVideo = await getLatestVideo(channel.channelId);
 
                 if (latestVideo.id !== channel.latestVideo) {
                     console.log(`${latestVideo.author.name} has a new video, updating stored values and sending to announcement channel!`, this.name)
 
-                    await channel.update({
+                    await channel.patch({
                         latestVideo: latestVideo.id
                     });
 
@@ -39,7 +39,7 @@ const youtubeWatcher: Utility = {
                         (announcementChannel as TextChannel).send(latestVideo.link)
                     }
                 }
-            })
+            })*/
 
         }, 10000);
     }

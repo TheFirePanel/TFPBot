@@ -1,18 +1,16 @@
-import { Model, DataTypes } from '@sequelize/core';
-import { Attribute } from '@sequelize/core/decorators-legacy';
+import { Model } from 'objection';
 
-class YoutubeChannel extends Model {
-    @Attribute(DataTypes.STRING)
-    declare channelId: string;
+export default class YoutubeChannel extends Model {
+    channelId: string
+    latestVideo: string
+    guildId: string
+    addedBy: string
 
-    @Attribute(DataTypes.STRING)
-    declare latestVideo: string
+    static get tableName() { 
+        return 'youtubeChannels';
+    }
 
-    @Attribute(DataTypes.STRING)
-    declare guildId: string
-
-    @Attribute(DataTypes.STRING)
-    declare addedBy: string
-}
-
-export default YoutubeChannel
+    static get idColumn() {
+        return 'channelId';
+      }
+};

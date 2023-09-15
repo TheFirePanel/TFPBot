@@ -7,7 +7,19 @@
   "scripts": {
     "lint": "eslint",
     "build": "tsc",
-    "watch": "nodemon"
+    "watch": "nodemon",
+
+    "knex:init": "knex init -x ts",
+    "knex:run": "knex --knexfile src/knexfile.ts --esm",
+
+    "migrate:currentVersion": "npm run knex:run -- migrate:currentVersion",
+    "migrate:list": "npm run knex:run -- migrate:list",
+    "migrate:make": "npm run knex:run -- migrate:make --",
+    "migrate:latest": "npm run knex:run -- migrate:latest --debug",
+    "migrate:rollback": "npm run knex:run -- migrate:rollback --all --debug",
+    
+    "seed:make": "npm run knex:run -- seed:make --",
+    "seed:run": "npm run knex:run -- seed:run --debug"
   },
   "author": "The Fire Panel, LLC",
   "license": "MIT",
@@ -17,12 +29,14 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@sequelize/core": "^7.0.0-alpha.27",
     "axios": "^1.4.0",
     "chalk": "^5.3.0",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "fast-xml-parser": "^4.2.5",
-    "mariadb": "^3.2.0"
+    "knex": "^2.5.1",
+    "mysql": "^2.18.1",
+    "objection": "^3.1.1",
+    "ts-node": "^10.9.1"
   }
 }
