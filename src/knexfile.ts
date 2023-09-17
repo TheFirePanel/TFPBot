@@ -1,8 +1,6 @@
 import { config as dotenv } from 'dotenv';
 dotenv({ path: '../.env' });
 
-// Update with your config settings.
-
 const config = {
 	production: {
 		client: 'mysql',
