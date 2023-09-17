@@ -15,14 +15,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Create client
 const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+// Database imports
 import { Model } from 'objection';
-import { knex, Knex } from 'knex'
+import knexPkg from 'knex';
+const { knex } = knexPkg;
 import knexConfig from './knexfile.js';
 
 // Thanks to poor support for typescript esm on Knex, ignore this
 // @ts-ignore
-const knexConn: Knex = knex(knexConfig.production);
-
+const knexConn = knex(knexConfig.production);
 Model.knex(knexConn);
 
 // Import commands
