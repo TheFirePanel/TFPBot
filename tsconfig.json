@@ -44,5 +44,18 @@
         ],
         "target": "ES2022",
         "useDefineForClassFields": true
-    }
+    },
+
+    "ts-node": {
+        "experimentalSpecifierResolution": "node",
+        "require": ["dotenv/config"],
+        "typeCheck": false,
+        "files": true,
+        "esm": true,
+        "ignore": [
+          "(?:^|/)node_modules/",
+          "(?:^|/)\\.next/",
+          ".yarn/*",
+        ]
+      }
 }
