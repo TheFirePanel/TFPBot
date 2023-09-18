@@ -29,24 +29,27 @@ const youtubeWatcher: Utility = {
 
             
 
-            this.cache?.data.forEach(async (channel, key) => {
-                const latestVideo = await getLatestVideo(channel.channel_id);
+            this.cache?.data.forEach((channel, index) => {
+                setTimeout(async () => {
+                    const latestVideo = await getLatestVideo(channel.channel_id);
 
-                if (latestVideo.id !== channel.latest_video) {
-                    console.log(`${latestVideo.author.name} has a new video, updating stored values and sending to announcement channel!`, this.name);
+                    if (latestVideo.id !== channel.latest_video) {
+                        console.log(`${latestVideo.author.name} has a new video, updating stored values and sending to announcement channel!`, this.name);
 
-                    this.cache!.data[key].latest_video = latestVideo.id;
-                    await client.db
-                        .updateTable('youtube_channels')
-                        .set({
-                            latest_video: latestVideo.id
-                        })
-                        .execute();
+                        this.cache!.data[index].latest_video = latestVideo.id;
+                        await client.db
+                            .updateTable('youtube_channels')
+                            .set({
+                                latest_video: latestVideo.id
+                            })
+                            .where("channel_id", "=", channel.channel_id)
+                            .execute();
 
-                    if (announcementChannel?.isTextBased()) {
-                        (announcementChannel as TextChannel).send(latestVideo.link)
+                        if (announcementChannel?.isTextBased()) {
+                            (announcementChannel as TextChannel).send(latestVideo.link)
+                        }
                     }
-                }
+                }, index * 5000)
             });
 
         }, 10000);
