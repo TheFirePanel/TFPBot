@@ -5,7 +5,7 @@ dotenv();
 // Default imports
 import { getJsFiles } from './helpers.js';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
-import { join,  dirname } from 'node:path';
+import { join, dirname } from 'node:path';
 import { readdirSync } from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import color from 'chalk';
@@ -16,15 +16,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Database imports
-import { Model } from 'objection';
-import knexPkg from 'knex';
-const { knex } = knexPkg;
-import knexConfig from './knexfile.js';
-
-// Thanks to poor support for typescript esm on Knex, ignore this
-// @ts-ignore
-const knexConn = knex(knexConfig.production);
-Model.knex(knexConn);
+import { db } from './database/database.js';
+client.db = db;
 
 // Import commands
 client.commands = new Collection();
