@@ -14,21 +14,23 @@ class FileMigrationProvider {
     public folder: string;
   
     constructor(folder: string) {
-      this.folder = folder;
+        this.folder = folder;
     }
   
     async getMigrations(): Promise<any> {
-      const migrations: Record<string, Migration> = {};
-      const files = getJsFiles(migrationsFolder);
-  
-      for await (const file of files) {
-        const migration = await import(
-            pathToFileURL(join(migrationsFolder, file)).href
-        )
-        migrations[migration.name] = migration;
-      }
-  
-      return migrations;
+        const migrations: Record<string, Migration> = {};
+        const files = getJsFiles(migrationsFolder);
+    
+        for await (const file of files) {
+            const migration = await import(
+                pathToFileURL(join(migrationsFolder, file)).href
+            )
+            const migrationName = file.substring(0, file.lastIndexOf('.'))
+
+            migrations[migrationName] = migration;
+        }
+    
+        return migrations;
     }
   }
 
@@ -41,11 +43,10 @@ export async function migrateToLatest() {
     const { error, results } = await migrator.migrateToLatest()
 
     results?.forEach((it) => {
-        console.log(it)
         if (it.status === 'Success') {
-            console.log(`migration "${it.migrationName}" was executed successfully`)
+            console.log(`Migration "${it.migrationName}" was executed successfully`)
         } else if (it.status === 'Error') {
-            console.error(`failed to execute migration "${it.migrationName}"`)
+            console.error(`Failed to execute migration "${it.migrationName}"`)
         }
     })
 

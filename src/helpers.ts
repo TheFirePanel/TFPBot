@@ -1,6 +1,4 @@
 import { readdirSync } from 'node:fs';
-//import colors from 'chalk';
-//const { green, yellow, red } = colors
 
 /**
  * Read a specified directory and grab compiled javascript files
@@ -11,36 +9,3 @@ export function getJsFiles(path: string): string[] {
 }
 
 export default {};
-
-
-/**
- * Override console methods
- */
-/*if (process.env.NODE_ENV !== 'development') {
-    (function(){
-        const log = console.log;
-        const warn = console.warn;
-        const error = console.error;
-
-        console.log = (message, location = null) => {
-            log(location 
-                ? green(`[${location}] ${message}`)
-                : green(message)
-            );
-        }
-
-        console.warn = (message, location = null) => {
-            warn(location
-                ? yellow(`[${location}] ${message}`)
-                : yellow(message)
-            );
-        }
-
-        console.error = (message, location = null) => {
-            error(location
-                ? red(`[${location}] ${message}`)
-                : red(message)
-            );
-        }
-    })();
-}*/
