@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint",
-    "build": "tsc && kysely-codegen",
+    "build": "kysely-codegen && tsc",
     "watch": "nodemon",
     "knex:init": "knex init -x ts",
     "knex:run": "node --loader tsx ./node_modules/.bin/knex --esm --knexfile src/database/knexfile.ts",
