@@ -1,7 +1,7 @@
 import { config as dotenv } from 'dotenv';
 dotenv();
 
-import { DB } from 'kysely-codegen';
+import { DB } from './types.js';
 import { createPool } from 'mysql2';
 import { Kysely, MysqlDialect } from 'kysely';
 import { migrateToLatest } from './migrator.js';
