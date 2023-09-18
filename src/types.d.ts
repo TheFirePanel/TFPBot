@@ -1,6 +1,6 @@
 import { Collection, Events, Interaction } from 'discord.js';
-import { Kysely } from 'kysely';
-import { DB } from 'kysely-codegen';
+import { ColumnType, Kysely } from 'kysely';
+import { DB } from './database/types.js';
 
 export interface Command {
     data: string,
