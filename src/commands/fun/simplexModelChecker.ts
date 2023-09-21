@@ -27,9 +27,9 @@ const simplexModelCheckerCommand: Command = {
             }
         }
 
-		await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		).catch(console.error);
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice, value: choice })),
+        ).catch(console.error);
     },
     async execute(interaction) {
         console.log('execute', interaction);
