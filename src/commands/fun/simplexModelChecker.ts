@@ -16,16 +16,20 @@ const simplexModelCheckerCommand: Command = {
         const cache = interaction.client.util.get('simplexModelChecker')?.cache
         if (!cache) return;
 
-        const focusedValue = interaction.options.getFocused();
-        const devices: string[] = Object.values(cache.models).flatMap((arr) => (arr as string));
-        const filtered: string[] = devices
-            .filter((choice) => (choice as string)
-            .startsWith(focusedValue))
-            .slice(0, 20);
+        const focusedValue: string = interaction.options.getFocused();
+        const autoDevices: string[] = cache.autoDevices;
+        const filtered: string[] = [];
+        
+        for (let i = 0, len = autoDevices.length; i < len && filtered.length < 10; i++) {
+            const choice = (autoDevices[i] as string);
+            if (choice.toLowerCase().startsWith(focusedValue)) {
+                filtered.push(choice);
+            }
+        }
 
 		await interaction.respond(
 			filtered.map(choice => ({ name: choice, value: choice })),
-		);
+		).catch(console.error);
     },
     async execute(interaction) {
         console.log('execute', interaction);

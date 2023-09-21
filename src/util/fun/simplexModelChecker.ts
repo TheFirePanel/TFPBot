@@ -9,7 +9,8 @@ const simplexModelChecker: Utility = {
     event: Events.ClientReady,
     cache: {
         categories: [],
-        models: []
+        autoDevices: [],
+        devices: [],
     },
     async execute(client: Client) {
         const categories: string[]  = await axios.get(`${githubRepo}/categories.json`)
@@ -30,7 +31,8 @@ const simplexModelChecker: Utility = {
                     return res.data.devices
                 })
 
-            cache.models[category] = devices;
+            cache.devices[category] = devices;
+            cache.autoDevices.push(...devices);
         });
     }
 }
