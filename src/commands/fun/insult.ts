@@ -1,15 +1,16 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
+import { Command } from '../../typings/index.js';
 
 const insults: string[] = ['Putting this %s mid sentence to test replace reply. %s %s'];
 
-export default {
+const insultCommand: Command = {
     data: new SlashCommandBuilder()
-        .setName('insult')
-        .setDescription('Provides the mentioned user with an insult!')
         .addUserOption(option => option.setName('user')
-            .setDescription('User to insult!')
-            .setRequired(true)),
-    async execute(interaction: ChatInputCommandInteraction) {
+        .setDescription('User to insult!')
+        .setRequired(true))
+        .setName('insult')
+        .setDescription('Provides the mentioned user with an insult!'),
+    async execute(interaction) {
         const user = interaction.options.get('user')?.user
         if (!user) return interaction.reply({ content: `I have not recieved a user to insult!`, ephemeral: true })
 
@@ -19,3 +20,5 @@ export default {
         return interaction.reply(insult.replace(/%s/g, user.toString()))
     }
 }
+
+export default insultCommand;
