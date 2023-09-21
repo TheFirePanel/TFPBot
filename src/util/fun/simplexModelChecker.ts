@@ -10,7 +10,7 @@ const simplexModelChecker: Utility = {
     cache: {
         categories: [],
         autoDevices: [],
-        devices: [],
+        devices: {},
     },
     async execute(client: Client) {
         const categories: string[]  = await axios.get(`${githubRepo}/categories.json`)

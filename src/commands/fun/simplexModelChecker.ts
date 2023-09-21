@@ -32,7 +32,20 @@ const simplexModelCheckerCommand: Command = {
         ).catch(console.error);
     },
     async execute(interaction) {
-        console.log('execute', interaction);
+        const cache = interaction.client.util.get('simplexModelChecker')?.cache;
+        if (!cache) return;
+
+        let foundCategory: string | null = null;
+        for (const [category, devices] of Object.entries(cache.devices)) {
+            const categoryHas = (devices as string[])
+                .some(devices => devices.includes(interaction.options.getString('model')));
+            
+            if (!categoryHas) return;
+
+            foundCategory = category;
+        }
+
+        interaction.reply(foundCategory);
     }
 }
 
