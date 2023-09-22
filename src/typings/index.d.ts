@@ -1,4 +1,4 @@
-import { Collection, Events, AutocompleteInteraction, SlashCommandBuilder } from 'discord.js';
+import { AutocompleteInteraction, ChatInputCommandInteraction, Collection, Events, SlashCommandBuilder } from 'discord.js';
 import { ColumnType, Kysely } from 'kysely';
 import { DB } from './database.js';
 
@@ -11,7 +11,7 @@ export interface Command {
 export interface Utility {
     name: string,
     event?: Events,
-    cache?: { [key: string]: any },
+    cache?: { [key: string]: Array | Object | string },
     execute: (...args: any) => void,
 }
 

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../typings/index.js';
 
 const simplexModelCheckerCommand: Command = {
@@ -33,19 +33,31 @@ const simplexModelCheckerCommand: Command = {
     },
     async execute(interaction) {
         const cache = interaction.client.util.get('simplexModelChecker')?.cache;
-        if (!cache) return;
+        const modelString = interaction.options.getString('model');
+
+        if (!cache || !modelString) return;
 
         let foundCategory: string | null = null;
         for (const [category, devices] of Object.entries(cache.devices)) {
             const categoryHas = (devices as string[])
-                .some(devices => devices.includes(interaction.options.getString('model')));
+                .some(devices => devices.includes(modelString));
             
-            if (!categoryHas) return;
-
-            foundCategory = category;
+            if (categoryHas) {
+                foundCategory = category;
+            }
         }
 
-        interaction.reply(foundCategory);
+        if (!foundCategory) return interaction.reply(`Model doesn't have a category, this shouldn't happen. 💀`);
+
+        const embed = new EmbedBuilder()
+            .setColor('Red')
+            .setTitle('Simplex Model Number Checker')
+            .setTimestamp()
+            .setFooter({ text: `Version ${process.env.npm_package_version}`});
+
+        return interaction.reply({
+            embeds: [embed]
+        });
     }
 }
 
