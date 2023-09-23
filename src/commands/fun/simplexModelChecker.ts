@@ -50,6 +50,7 @@ const simplexModelCheckerCommand: Command = {
         const embed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Simplex Model Number Checker')
+            .setAuthor({ name: interaction.user.displayName, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.npm_package_version}`});
 
@@ -79,15 +80,14 @@ const simplexModelCheckerCommand: Command = {
 
         return interaction.reply({
             embeds: [
-                embed
-                    .addFields(
-                        { name: '📦 Model', value: codeBlock(modelString) },
-                        { name: '📊 Type', value: codeBlock(`${foundCategory.toUpperCase()}\n${deviceDescriptions[foundCategory.toLowerCase()]}`)},
-                        { 
-                            name: '☹️ Missing something?', 
-                            value: 'Feel free to open an issue or a pull request on our [github repository](https://github.com/TheFirePanel/SimplexModelChecker)!' 
-                        }
-                    )
+                embed.addFields(
+                    { name: '📦 Model', value: codeBlock(modelString) },
+                    { name: '📊 Type', value: codeBlock(`${foundCategory.toUpperCase()}\n${deviceDescriptions[foundCategory.toLowerCase()]}`)},
+                    { 
+                        name: '☹️ Missing something?', 
+                        value: 'Feel free to open an issue or a pull request on our [github repository](https://github.com/TheFirePanel/SimplexModelChecker)!' 
+                    }
+                )
             ]
         });
     }
