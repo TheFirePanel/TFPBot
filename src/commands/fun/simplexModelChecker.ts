@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, codeBlock } from 'discord.js';
 import { Command } from '../../typings/index.js';
 
 const simplexModelCheckerCommand: Command = {
@@ -49,9 +49,26 @@ const simplexModelCheckerCommand: Command = {
 
         if (!foundCategory) return interaction.reply(`Model doesn't have a category, this shouldn't happen. 💀`);
 
+        const deviceDescriptions: { [key: string]: string } = {
+            'freerun': `When power is applied, both the horn and strobe will run`,
+            'selectable': `When power is applied, the horn will run always. The strobe can flash on it's own, or with SmartSync depending on a DIP Switch setting`,
+            'syncable': `Horn will operate when power is applied, but strobe will only flash when power is removed`,
+            'smartsync': `Requires a compatible Simplex Panel, or a SmartSync module such as the 4905-9938 to operate Horn or Strobe`,
+            'addressable': `For use only with high-end Simplex Panels, such as the 4100U`,
+            'es': `Requires a Simplex 4007ES, 4010ES, or 4100ES for operation`
+        }
+
         const embed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Simplex Model Number Checker')
+            .addFields(
+                { name: '📦 Model', value: codeBlock(modelString) },
+                { name: '📊 Type', value: codeBlock(`${foundCategory.toUpperCase()}\n${deviceDescriptions[foundCategory.toLowerCase()]}`)},
+                { 
+                    name: '☹️ Missing something?', 
+                    value: 'Feel free to open an issue or a pull request on our [github repository](https://github.com/TheFirePanel/SimplexModelChecker)!' 
+                }
+            )
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.npm_package_version}`});
 
