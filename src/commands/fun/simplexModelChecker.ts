@@ -47,7 +47,26 @@ const simplexModelCheckerCommand: Command = {
             }
         }
 
-        if (!foundCategory) return interaction.reply(`Model doesn't have a category, this shouldn't happen. 💀`);
+        const embed = new EmbedBuilder()
+            .setColor('Red')
+            .setTitle('Simplex Model Number Checker')
+            .setTimestamp()
+            .setFooter({ text: `Version ${process.env.npm_package_version}`});
+
+        if (!foundCategory) return interaction.reply({
+            embeds: [
+                embed.addFields(
+                    { 
+                        name: '😕 Not Found',
+                        value: codeBlock(`Unable to find "${modelString}", if this should be on the list then please visit the github repository and open an issue or pull request`)
+                    },
+                    {
+                        name: '💻 GitHub',
+                        value: '[GitHub Repository](https://github.com/TheFirePanel/SimplexModelChecker)'
+                    }
+                )
+            ]
+        });
 
         const deviceDescriptions: { [key: string]: string } = {
             'freerun': `When power is applied, both the horn and strobe will run`,
@@ -58,22 +77,18 @@ const simplexModelCheckerCommand: Command = {
             'es': `Requires a Simplex 4007ES, 4010ES, or 4100ES for operation`
         }
 
-        const embed = new EmbedBuilder()
-            .setColor('Red')
-            .setTitle('Simplex Model Number Checker')
-            .addFields(
-                { name: '📦 Model', value: codeBlock(modelString) },
-                { name: '📊 Type', value: codeBlock(`${foundCategory.toUpperCase()}\n${deviceDescriptions[foundCategory.toLowerCase()]}`)},
-                { 
-                    name: '☹️ Missing something?', 
-                    value: 'Feel free to open an issue or a pull request on our [github repository](https://github.com/TheFirePanel/SimplexModelChecker)!' 
-                }
-            )
-            .setTimestamp()
-            .setFooter({ text: `Version ${process.env.npm_package_version}`});
-
         return interaction.reply({
-            embeds: [embed]
+            embeds: [
+                embed
+                    .addFields(
+                        { name: '📦 Model', value: codeBlock(modelString) },
+                        { name: '📊 Type', value: codeBlock(`${foundCategory.toUpperCase()}\n${deviceDescriptions[foundCategory.toLowerCase()]}`)},
+                        { 
+                            name: '☹️ Missing something?', 
+                            value: 'Feel free to open an issue or a pull request on our [github repository](https://github.com/TheFirePanel/SimplexModelChecker)!' 
+                        }
+                    )
+            ]
         });
     }
 }
