@@ -9,7 +9,7 @@
     "build": "tsc",
     "watch": "nodemon",
     "deploy": "ts-node src/deploy.ts",
-    "preversion": "ts-node src/preversion.ts && git add ./src/index.ts"
+    "preversion": "ts-node src/preversion.ts && git add ."
   },
   "author": "The Fire Panel, LLC",
   "license": "MIT",
