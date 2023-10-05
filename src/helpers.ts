@@ -1,6 +1,7 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { EmbedBuilder, Guild, TextChannel, ColorResolvable } from 'discord.js';
 
 /**
  * Read a specified directory and grab typescript or javascript files
@@ -40,6 +41,32 @@ export function getFileName(path: string): string {
     return path
         .substring(0, path.lastIndexOf('.'))
         .replace(/^.*(\\|\/|\:)/, '');
+}
+
+export function sendBotLog(guild: Guild, data: { 
+        title: string,
+        color?: ColorResolvable, 
+        embed?: EmbedBuilder
+    } = {
+        title: 'Bot Log',
+        color: 'Red'
+    }): void {
+        if (!guild) return;
+
+        // Get data and create a constant for easy readability
+        const { embed, title, color } = data
+        // Ternary creates a new embed object if not supplied initially
+        const embedToSend = (embed ? embed : new EmbedBuilder())
+            .setColor(color || 'Red')
+            .setTitle(title)
+            .setTimestamp()
+            .setFooter({ text: `Version ${process.env.version}`});
+
+        (guild.channels.cache.find((channel) => {
+            return (channel.name === 'bot-logs' );
+        }) as TextChannel).send({
+            embeds: [embedToSend]
+        })
 }
 
 export default {};
