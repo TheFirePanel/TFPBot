@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Guild, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, Guild, PermissionFlagsBits, SlashCommandBuilder, User } from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
 
@@ -28,18 +28,9 @@ const uhOhCommand: Command = {
         // This should never run but we will do this anyway, command is blocked from dms
         if (!guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true })
 
-        sendBotLog(interaction.guild, {
-            title: 'test',
-            embed: new EmbedBuilder()
-                .addFields({
-                    name: 'AAAAA',
-                    value: 'DDDDD'
-                })
-        })
-
         switch(subCommand) {
             case 'send':
-                sendToModerated(guild, interaction);
+                sendToModerated(guild, user, interaction);
                 break;
         }
 
@@ -47,9 +38,30 @@ const uhOhCommand: Command = {
     }
 }
 
-// @ts-ignore Ignoring for now since function has not been built
-function sendToModerated(guild: Guild, interaction: ChatInputCommandInteraction) {
-    
+async function sendToModerated(guild: Guild, user: User, interaction: ChatInputCommandInteraction) {
+    const channel = await guild.channels.create({
+        name: `moderated-${user.displayName}`
+    }).catch(console.error)
+    if (!channel) return;
+
+    sendBotLog(guild, {
+        title: '📤User sent to moderated channel',
+        embed: new EmbedBuilder()
+            .addFields(
+                {
+                    name: '📜Channel',
+                    value: `<#${channel.id}>`,
+                    inline: true
+                },
+                {
+                    name: '🙍User',
+                    value: `<@${user.id}>`,
+                    inline: true
+                }
+            )
+    })
+
+    console.log(channel, interaction);
 }
 
 export default uhOhCommand;

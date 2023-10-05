@@ -62,9 +62,12 @@ export function sendBotLog(guild: Guild, data: {
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.version}`});
 
-        (guild.channels.cache.find((channel) => {
+        const logChannel = (guild.channels.cache.find((channel) => {
             return (channel.name === 'bot-logs' );
-        }) as TextChannel).send({
+        }) as TextChannel);
+        if (!logChannel) return;
+        
+        logChannel.send({
             embeds: [embedToSend]
         })
 }
