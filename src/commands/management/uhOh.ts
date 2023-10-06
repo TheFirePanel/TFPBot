@@ -34,7 +34,7 @@ const uhOhCommand: Command = {
                 break;
         }
 
-        return interaction.reply(`GYATTT`);
+        return interaction.reply(`Sending reply to statisfy`);
     }
 }
 
