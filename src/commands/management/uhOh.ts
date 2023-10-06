@@ -13,6 +13,20 @@ const uhOhCommand: Command = {
                     .setDescription('The user to moderate.')
                     .setRequired(true)
                 )
+                .addBooleanOption(option => option
+                    .setName('isolate')
+                    .setDescription('Give user a role that disallows access to the discord?')
+                )
+        )
+        .addSubcommand(option => 
+            option
+                .setName('release')
+                .setDescription('Release a user from a moderated channel.')
+                .addUserOption(option => option
+                    .setName('user')
+                    .setDescription('The user to release.')
+                    .setRequired(true)
+                )
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .setDMPermission(false)
@@ -56,8 +70,9 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
         .catch(console.error);
 
     sendBotLog(guild, {
-        title: '📤User sent to moderated channel',
+        title: 'User sent to moderated channel',
         embed: new EmbedBuilder()
+            .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
             .addFields(
                 {
                     name: '📜Channel',
@@ -68,6 +83,10 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
                     name: '🙍User',
                     value: `<@${user.id}>`,
                     inline: true
+                },
+                {
+                    name: '🛡️Staff Member',
+                    value: `<@${interaction.user.id}>`
                 }
             )
     })
