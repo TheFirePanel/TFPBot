@@ -16,6 +16,12 @@ const statusMessages: ActivityOptions[] = [
     }
 ];
 
+/**
+ * @name randomStatus
+ * @event ClientReady
+ * @author DrPepperG
+ * @desc This utility runs on bot ready and sets a random status from the above array every 3 minutes.
+ */
 const randomStatus: Utility = {
     name: 'randomStatus',
     event: Events.ClientReady,

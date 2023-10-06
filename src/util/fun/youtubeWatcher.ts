@@ -13,6 +13,14 @@ type LatestVideo = {
     link: string
 }
 
+/**
+ * @name youtubeWatcher
+ * @event ClientReady
+ * @author DrPepperG
+ * @desc This utility runs on bot ready and provides the logic behind the #new-videos channel.
+ * Every 30 minutes each channel will be checked for new videos compared to last video stored,
+ * if new video is found then a link will be sent in #new-videos.
+ */
 const youtubeWatcher: Utility = {
     name: 'youtubeWatcher',
     event: Events.ClientReady,

@@ -34,7 +34,7 @@ const uhOhCommand: Command = {
                 break;
         }
 
-        return null;
+        return interaction.reply(`GYATTT`);
     }
 }
 
@@ -43,6 +43,17 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
         name: `moderated-${user.displayName}`
     }).catch(console.error)
     if (!channel) return;
+
+    await interaction.client.db
+        .insertInto('mod_channels')
+        .values({
+            channel_id: channel.id,
+            guild_id: guild.id,
+            user_id: user.id,
+            added_by: interaction.user.id
+        })
+        .execute()
+        .catch(console.error);
 
     sendBotLog(guild, {
         title: '📤User sent to moderated channel',
