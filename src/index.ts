@@ -27,7 +27,7 @@ const storedConfig: {
 
 // Default configuration values, used if guild does not have any overwrites yet
 const globalConfig: { [key: string]: string } = {
-    'botLogsChannel': '#bot-logs'
+    'botLogsChannel': 'bot-logs'
 }
 
 storedConfig['GLOBAL'] = new Collection();
@@ -56,11 +56,13 @@ client.refreshConfig = async function(): Promise<void> {
 await client.refreshConfig();
 
 client.getConfig = function(option, guild) {
-    const config = storedConfig[guild ? guild : 'GLOBAL']
-    if (!config) return storedConfig['GLOBAL']?.get(option);
+    const config = storedConfig[(guild ? guild : 'GLOBAL')]
+    if (!config?.get(option)) return storedConfig['GLOBAL']?.get(option);
 
     return config.get(option);
 }
+
+console.log(client.getConfig('botLogsChannel', '908908014965252116'))
 
 // #endregion Bot settings logic
 

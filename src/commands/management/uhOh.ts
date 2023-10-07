@@ -97,8 +97,6 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
                 }
             )
     })
-
-    console.log(channel, interaction);
 }
 
 export default uhOhCommand;

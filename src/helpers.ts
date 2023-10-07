@@ -63,7 +63,7 @@ export function sendBotLog(guild: Guild, data: {
             .setFooter({ text: `Version ${process.env.version}`});
 
         const logChannel = (guild.channels.cache.find((channel) => {
-            return (channel.name === 'bot-logs' );
+            return (channel.name === guild.client.getConfig('botLogsChannel', guild.id) );
         }) as TextChannel);
         if (!logChannel) return;
         
