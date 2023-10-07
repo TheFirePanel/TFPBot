@@ -18,6 +18,8 @@ const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 import { db } from './database/database.js';
 client.db = db;
 
+// #region Bot settings logic
+
 // Grab configurations from the database
 const storedConfig: {
     [key: string]: Collection<string, string>
@@ -59,6 +61,8 @@ client.getConfig = function(option, guild) {
 
     return config.get(option);
 }
+
+// #endregion Bot settings logic
 
 // #region Auto imports
 
