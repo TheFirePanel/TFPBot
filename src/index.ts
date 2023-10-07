@@ -27,7 +27,8 @@ const storedConfig: {
 
 // Default configuration values, used if guild does not have any overwrites yet
 const globalConfig: { [key: string]: string } = {
-    'botLogsChannel': 'bot-logs'
+    'botLogsChannel': 'bot-logs',
+    'youtubeWatcherChannel': 'new-videos'
 }
 
 storedConfig['GLOBAL'] = new Collection();

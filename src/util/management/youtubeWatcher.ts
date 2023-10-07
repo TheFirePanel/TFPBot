@@ -121,7 +121,7 @@ async function announceVideo(client: Client, guildId: string, latestVideo: Lates
     await client.guilds.fetch(guildId)
         .then(async (guild) => {
             return guild.channels.cache.find((channel) => {
-                return channel.name === 'new-videos';
+                return channel.name === client.getConfig('youtubeWatcherChannel', guild.id);
             })
         })
         .then((channel) => {
