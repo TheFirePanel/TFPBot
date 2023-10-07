@@ -20,4 +20,4 @@ export const db = new Kysely<DB>({
     dialect,
 });
 
-migrateToLatest();
+await migrateToLatest();

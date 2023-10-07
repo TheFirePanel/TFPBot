@@ -7,6 +7,13 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export interface Configs {
+  type: string;
+  guild_id: Generated<string | null>;
+  option: string;
+  value: Generated<string | null>;
+}
+
 export interface ModChannels {
   channel_id: string;
   guild_id: string;
@@ -22,6 +29,7 @@ export interface YoutubeChannels {
 }
 
 export interface DB {
+  configs: Configs;
   mod_channels: ModChannels;
   youtube_channels: YoutubeChannels;
 }

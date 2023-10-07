@@ -12,13 +12,14 @@ export interface Utility {
     name: string,
     event?: Events,
     cache?: { [key: string]: Array | Object | string },
-    execute: (...args: any) => void,
+    execute: (...args: any) => void
 }
 
 declare module 'discord.js' {
     export interface Client {
         commands: Collection<string, Command>,
         db: Kysely<DB>,
-        util: Collection<string, Utility>,
+        util: Collection<string, Utility>
+        getConfig(option: string, guild?: string): string | undefined
     }
 }
