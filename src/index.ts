@@ -62,8 +62,6 @@ client.getConfig = function(option, guild) {
     return config.get(option);
 }
 
-console.log(client.getConfig('botLogsChannel', '908908014965252116'))
-
 // #endregion Bot settings logic
 
 // #region Auto imports
