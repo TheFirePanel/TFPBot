@@ -18,30 +18,44 @@ const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
 import { db } from './database/database.js';
 client.db = db;
 
-// Import configs
-const dbConfig: {
+// Grab configurations from the database
+const storedConfig: {
     [key: string]: Collection<string, string>
 } = {}
 
-await client.db
-    .selectFrom('configs')
-    .selectAll()
-    .execute()
-    .then((configs) => {
-        configs.forEach((config) => {
-            if (!config.value) return;
+// Default configuration values, used if guild does not have any overwrites yet
+const globalConfig: { [key: string]: string } = {
+    'botLogsChannel': '#bot-logs'
+}
 
-            const configType = (config.guild_id) ? config.guild_id : config.type;
-            if (!dbConfig[configType]) dbConfig[configType] = new Collection;
+storedConfig['GLOBAL'] = new Collection();
+for (const [option, value] of Object.entries(globalConfig)) {
+    storedConfig['GLOBAL']?.set(option, value)
+}
 
-            dbConfig[configType]?.set(config.option, config.value);
+client.refreshConfig = async function(): Promise<void> {
+    await client.db
+        .selectFrom('configs')
+        .selectAll()
+        .execute()
+        .catch(console.error)
+        .then((configs) => {
+            if (!configs) return;
             
+            configs.forEach((config) => {
+                if (!config.value) return;
+
+                if (!storedConfig[config.guild_id]) storedConfig[config.guild_id] = new Collection;
+                storedConfig[config.guild_id]?.set(config.option, config.value);
+            })
         })
-    })
+}
+
+await client.refreshConfig();
 
 client.getConfig = function(option, guild) {
-    const config = dbConfig[guild ? guild : 'GLOBAL']
-    if (!config) return dbConfig['GLOBAL']?.get(option);
+    const config = storedConfig[guild ? guild : 'GLOBAL']
+    if (!config) return storedConfig['GLOBAL']?.get(option);
 
     return config.get(option);
 }
