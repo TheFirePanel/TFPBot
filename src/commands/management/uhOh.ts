@@ -54,7 +54,14 @@ const uhOhCommand: Command = {
 
 async function sendToModerated(guild: Guild, user: User, interaction: ChatInputCommandInteraction) {
     const channel = await guild.channels.create({
-        name: `moderated-${user.displayName}`
+        name: `moderated-${user.displayName}`,
+        reason: `Sent to moderated chanel by ${interaction.user.displayName}`,
+        permissionOverwrites: [
+            {
+                id: user.id,
+                allow: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]
+            }
+        ]
     }).catch(console.error)
     if (!channel) return;
 
