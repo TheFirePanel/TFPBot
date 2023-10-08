@@ -13,7 +13,7 @@ import {
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
-import { BotLogOptions } from '../../typings/helpers.js';
+import { BotLogOptions } from '../../typings/index.js';
 import chalk from 'chalk';
 
 const uhOhCommand: Command = {

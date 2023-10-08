@@ -2,7 +2,7 @@ import { readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EmbedBuilder, TextChannel, MessageCreateOptions } from 'discord.js';
-import { BotLogOptions } from './typings/helpers.js';
+import { BotLogOptions } from './typings/index.js';
 
 /**
  * Read a specified directory and grab typescript or javascript files
