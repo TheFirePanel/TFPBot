@@ -37,6 +37,8 @@ const simplexModelCheckerCommand: Command = {
 
         if (!cache || !modelString) return;
 
+        await interaction.deferReply();
+
         let foundCategory: string | null = null;
         for (const [category, devices] of Object.entries(cache.devices)) {
             const categoryHas = (devices as string[])
@@ -54,7 +56,7 @@ const simplexModelCheckerCommand: Command = {
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.version}`});
 
-        if (!foundCategory) return interaction.reply({
+        if (!foundCategory) return interaction.editReply({
             embeds: [
                 embed.addFields(
                     { 
@@ -78,7 +80,7 @@ const simplexModelCheckerCommand: Command = {
             'es': `Requires a Simplex 4007ES, 4010ES, or 4100ES for operation`
         }
 
-        return interaction.reply({
+        return interaction.editReply({
             embeds: [
                 embed.addFields(
                     { name: '📦 Model', value: codeBlock(modelString) },

@@ -27,8 +27,10 @@ const storedConfig: {
 
 // Default configuration values, used if guild does not have any overwrites yet
 const globalConfig: { [key: string]: string } = {
-    'botLogsChannel': 'bot-logs',
-    'youtubeWatcherChannel': 'new-videos'
+    'botLogsChannel': 'bot-logs', // sendBotLog
+    'youtubeWatcherChannel': 'new-videos', // youtubeWatcher
+    'moderatedCategory': 'Moderated Channels',
+    'moderatedIsolationRole': 'Moderated' // uhOh
 }
 
 storedConfig['GLOBAL'] = new Collection();
@@ -54,7 +56,12 @@ client.refreshConfig = async function(): Promise<void> {
         })
 }
 
-await client.refreshConfig();
+console.log(color.yellow(`Loading configuration from database`))
+await client.refreshConfig()
+    .catch(console.error)
+    .then(() => {
+        console.log(color.yellow(`Loaded configuration from database, continuing startup`))
+    });
 
 client.getConfig = function(option, guild) {
     const config = storedConfig[(guild ? guild : 'GLOBAL')]

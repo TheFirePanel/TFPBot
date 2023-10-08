@@ -1,4 +1,12 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Guild, PermissionFlagsBits, SlashCommandBuilder, User } from 'discord.js';
+import { 
+    ChatInputCommandInteraction,
+    CommandInteractionOption,
+    EmbedBuilder,
+    Guild,
+    GuildMember,
+    PermissionFlagsBits,
+    SlashCommandBuilder
+} from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
 
@@ -11,6 +19,11 @@ const uhOhCommand: Command = {
                 .addUserOption(option => option
                     .setName('user')
                     .setDescription('The user to moderate.')
+                    .setRequired(true)
+                )
+                .addStringOption(option => option
+                    .setName('reason')
+                    .setDescription('Reason for sending user to a moderated channel.')
                     .setRequired(true)
                 )
                 .addBooleanOption(option => option
@@ -33,26 +46,35 @@ const uhOhCommand: Command = {
         .setName('uhoh')
         .setDescription('Moves mentioned user to a private channel for moderation discussion.'),
     async execute(interaction: ChatInputCommandInteraction) {
+        if (!interaction.channel?.isTextBased || !interaction.inCachedGuild()) return;
+
         const subCommand = interaction.options.getSubcommand();
 
-        const user = interaction.options.get('user')?.user;
-        if (!user) return interaction.reply({ content: `I have not recieved a user to moderate!`, ephemeral: true });
+        const userOption = interaction.options.get('user', true);
+        if (!userOption) return interaction.reply({ content: `I have not recieved a user to moderate!`, ephemeral: true });
 
-        const guild = interaction.guild;
         // This should never run but we will do this anyway, command is blocked from dms
-        if (!guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true })
+        if (!interaction.guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true });
+
+        await interaction.deferReply({ ephemeral: true });
 
         switch(subCommand) {
             case 'send':
-                sendToModerated(guild, user, interaction);
+                sendToModerated(interaction.guild, userOption, interaction);
+                break;
+            case 'release':
+                releaseFromModerated(interaction.guild, userOption, interaction);
                 break;
         }
 
-        return interaction.reply(`Sending reply to statisfy`);
+        return;
     }
 }
 
-async function sendToModerated(guild: Guild, user: User, interaction: ChatInputCommandInteraction) {
+async function sendToModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
+    const { user, member } = userOption
+    if (!user || !member ) return;
+
     const channel = await guild.channels.create({
         name: `moderated-${user.displayName}`,
         reason: `Sent to moderated chanel by ${interaction.user.displayName}`,
@@ -76,15 +98,29 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
         .execute()
         .catch(console.error);
 
+    // If isolation is true then give the moderated role
+    if (interaction.options.get('isolate')?.value) {
+        const role = guild.roles.cache.find((role) => {
+            return (role.name === guild.client.getConfig('moderatedIsolationRole'))
+        });
+        if (!role) {
+            console.log(`${guild.name} is missing role by the name of (${guild.client.getConfig('moderatedIsolationRole')}), skipping isolation`);
+        } else {
+            (member as GuildMember).roles
+                .add(role.id)
+                .catch(console.error);
+        }
+    }
+
+    const reason = interaction.options.get('reason', true).value;
     sendBotLog(guild, {
         title: 'User sent to moderated channel',
         embed: new EmbedBuilder()
             .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
             .addFields(
                 {
-                    name: '📜Channel',
-                    value: `<#${channel.id}>`,
-                    inline: true
+                    name: '📖Channel',
+                    value: `<#${channel.id}> \n (**${channel.name}**)`,
                 },
                 {
                     name: '🙍User',
@@ -93,10 +129,52 @@ async function sendToModerated(guild: Guild, user: User, interaction: ChatInputC
                 },
                 {
                     name: '🛡️Staff Member',
-                    value: `<@${interaction.user.id}>`
+                    value: `<@${interaction.user.id}>`,
+                    inline: true
+                },
+                {
+                    name: '🗒️Reason',
+                    value: ((reason as string) || 'No reason provided')
                 }
             )
+    });
+
+    interaction.editReply({
+        content: `<@${user.id}> has successfully been moderated!`
     })
+}
+
+async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
+    const channel = await interaction.client.db
+        .selectFrom('mod_channels')
+        .selectAll()
+        .executeTakeFirst()
+        .catch(console.error);
+    if (!channel) return;
+
+    const channelToDelete = guild.channels.cache.get(channel.channel_id);
+    if (!channelToDelete) return;
+
+    const { member, user } = userOption;
+    if (!user || !member ) return;
+    
+    const role = guild.roles.cache.find((role) => {
+        return (role.name === guild.client.getConfig('moderatedIsolationRole'));
+    });
+    if (role) {
+        (member as GuildMember).roles
+            .remove(role.id)
+            .catch(console.error);
+    }
+
+    await channelToDelete
+        .delete()
+        .catch(console.error);
+
+    // Since command can be done out of deleted channel lets edit the reply! Ignore errors since deleting the message channel will do so
+    await interaction.editReply({
+        content: `<@${user.id}> has successfully been released!`
+    }).catch(() => {});
 }
 
 export default uhOhCommand;

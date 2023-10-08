@@ -11,17 +11,40 @@ const uhOhChannelDelete: Utility = {
     name: 'uhOhChannelDelete',
     event: Events.ChannelDelete,
     async execute(channel: DMChannel | GuildChannel) {
-        if (!channel.isTextBased()) return;
+        if (!channel.isTextBased() || channel.isDMBased()) return;
 
-        const client = channel.client
-        await client.db
+        await channel.client.db
+            .selectFrom('mod_channels')
+            .select('user_id')
+            .where('channel_id', '=', channel.id)
+            .executeTakeFirst()
+            .catch(console.error)
+            .then((moderated) => {
+                if (!moderated || !moderated.user_id) return;
+
+                const member = channel.guild.members.cache.get(moderated.user_id);
+                const guild = channel.guild;
+
+                const role = guild.roles.cache.find((role) => {
+                    return (role.name === guild.client.getConfig('moderatedIsolationRole'))
+                });
+                if (!role) return console.log(`${guild.name} is missing role by the name of (${guild.client.getConfig('moderatedIsolationRole')}), skipping isolation`);
+
+                member?.roles
+                    .remove(role.id)
+                    .catch(console.error);
+            });
+
+        channel.client.db
             .deleteFrom('mod_channels')
             .where('channel_id', '=', channel.id)
             .executeTakeFirst()
+            .catch(console.error)
             .then((res) => {
-                if (res.numDeletedRows <= 0) return;
-                console.log(`Removed channel (${channel.id}) from the moderated channels database as it was manually deleted.`)
+                if (!res || res.numDeletedRows <= 0) return;
+                console.log(`Removed channel (${channel.id}) from the moderated channels database as it was deleted.`)
             });
+            
     }
 }
 
