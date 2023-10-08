@@ -1,6 +1,6 @@
-import { Client, Events, TextChannel } from 'discord.js';
+import { Events, type Client, type TextChannel } from 'discord.js';
 import { XMLParser } from 'fast-xml-parser';
-import { Utility } from '../../typings/index.js';
+import { type Utility } from '../../typings/index.js';
 import axios from 'axios';
 
 type LatestVideo = {

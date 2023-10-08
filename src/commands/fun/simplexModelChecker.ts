@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandBuilder, codeBlock } from 'discord.js';
-import { Command } from '../../typings/index.js';
+import { type Command } from '../../typings/index.js';
 
 const simplexModelCheckerCommand: Command = {
     data: new SlashCommandBuilder()

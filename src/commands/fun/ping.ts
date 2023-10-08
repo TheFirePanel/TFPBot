@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { Command } from '../../typings/index.js';
+import { type Command } from '../../typings/index.js';
 
 const pingCommand: Command = {
     data: new SlashCommandBuilder()

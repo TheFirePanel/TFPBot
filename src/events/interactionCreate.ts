@@ -5,7 +5,7 @@ import {
     type BaseInteraction,
     type ChatInputCommandInteraction,
 } from 'discord.js'
-import { Command } from '../typings/index.js';
+import { type Command } from '../typings/index.js';
 
 export default {
     name: Events.InteractionCreate,

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { Command } from '../../typings/index.js';
+import { type Command } from '../../typings/index.js';
 
 const insults: string[] = ['Putting this %s mid sentence to test replace reply. %s %s'];
 

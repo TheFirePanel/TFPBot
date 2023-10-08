@@ -1,5 +1,5 @@
-import { Client, Events } from 'discord.js';
-import { Utility } from '../../typings/index.js';
+import { Events, type Client } from 'discord.js';
+import { type Utility } from '../../typings/index.js';
 import axios from 'axios';
 
 const githubRepo = 'https://raw.githubusercontent.com/TheFirePanel/SimplexModelChecker/main'

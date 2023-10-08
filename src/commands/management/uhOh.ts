@@ -1,14 +1,15 @@
 import { 
     AttachmentBuilder,
-    ChatInputCommandInteraction,
-    CommandInteractionOption,
     EmbedBuilder,
-    FetchMessagesOptions,
-    Guild,
-    GuildBasedChannel,
-    GuildMember,
     PermissionFlagsBits,
-    SlashCommandBuilder
+    SlashCommandBuilder,
+    type ChatInputCommandInteraction,
+    type CommandInteractionOption,
+    type FetchMessagesOptions,
+    type Guild,
+    type GuildBasedChannel,
+    type GuildMember,
+    type Message,
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
@@ -178,15 +179,35 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     const messageAttachment = await archiveMessages(channel)
         .then((messages) => {
             if (!messages) return;
-            
+
             const formattedData = messages.map(message => `${message.createdAt} ${message.author.displayName} : ${message.content}`)
             return new AttachmentBuilder(Buffer.from(formattedData.join('\n'), 'utf-8'), { name: `${channel.name}.txt` })
         })
         .catch(console.error);
 
+    
+    const embed = new EmbedBuilder()
+        .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
+        .addFields(
+            {
+                name: '📖Channel',
+                value: `**${channel.name}**`,
+            },
+            {
+                name: '🙍User',
+                value: `<@${user.id}>`,
+                inline: true
+            },
+            {
+                name: '🛡️Released By',
+                value: `<@${interaction.user.id}>`,
+                inline: true
+            }
+        )
 
     const botLogOptions: BotLogOptions['data'] = {
         title: 'User released from moderated channel',
+        embed: embed,
     }
     if (messageAttachment) botLogOptions.attachments = [messageAttachment];
 
@@ -205,7 +226,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
 async function archiveMessages(channel: GuildBasedChannel, limit: number = 500) {
     if (!channel.isTextBased()) return;
 
-    const archivedMessages = [];
+    const archivedMessages: Message[] = [];
     let last_id;
 
     while (true) {

@@ -3,7 +3,7 @@ import {
     type DMChannel,
     type GuildChannel
 } from 'discord.js'
-import { Utility } from '../../typings/index.js';
+import { type Utility } from '../../typings/index.js';
 
 /**
  * @name uhOhChannelDelete

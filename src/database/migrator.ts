@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   Migrator,
-  Migration
+  type Migration
 } from 'kysely';
 import { db } from './database.js';
 import { getFiles, getFileName } from '../helpers.js';
