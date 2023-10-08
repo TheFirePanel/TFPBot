@@ -1,4 +1,10 @@
-import { EmbedBuilder, Guild, ColorResolvable, Attachment, AttachmentBuilder } from 'discord.js';
+import type {
+    EmbedBuilder,
+    Guild,
+    ColorResolvable,
+    Attachment,
+    AttachmentBuilder 
+} from 'discord.js';
 
 interface BotLogOptions {
     guild: Guild,

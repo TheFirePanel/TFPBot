@@ -1,6 +1,15 @@
-import { AutocompleteInteraction, ChatInputCommandInteraction, Collection, Events, SlashCommandBuilder } from 'discord.js';
-import { ColumnType, Kysely } from 'kysely';
-import { DB } from './database.js';
+import type {
+    AutocompleteInteraction,
+    ChatInputCommandInteraction,
+    Collection,
+    Events,
+    SlashCommandBuilder
+} from 'discord.js';
+import type {
+    ColumnType,
+    Kysely
+} from 'kysely';
+import type { DB } from './database.js';
 
 export interface Command {
     data: SlashCommandBuilder,
