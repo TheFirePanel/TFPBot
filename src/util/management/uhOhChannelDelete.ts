@@ -19,10 +19,10 @@ const uhOhChannelDelete: Utility = {
             .where('channel_id', '=', channel.id)
             .executeTakeFirst()
             .catch(console.error)
-            .then((moderated) => {
+            .then(async (moderated) => {
                 if (!moderated || !moderated.user_id) return;
 
-                const member = channel.guild.members.cache.get(moderated.user_id);
+                const member = await channel.guild.members.fetch(moderated.user_id);
                 const guild = channel.guild;
 
                 const role = guild.roles.cache.find((role) => {
@@ -35,7 +35,7 @@ const uhOhChannelDelete: Utility = {
                     .catch(console.error);
             });
 
-        channel.client.db
+        await channel.client.db
             .deleteFrom('mod_channels')
             .where('channel_id', '=', channel.id)
             .executeTakeFirst()
