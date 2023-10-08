@@ -14,6 +14,7 @@ import {
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
 import { BotLogOptions } from '../../typings/helpers.js';
+import chalk from 'chalk';
 
 const uhOhCommand: Command = {
     data: new SlashCommandBuilder()
@@ -79,9 +80,19 @@ const uhOhCommand: Command = {
 async function sendToModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
     const { user, member } = userOption
     if (!user || !member ) return;
+    
+    const categoryConfig = interaction.client.getConfig('moderatedCategory', guild.id)
+    const category = guild.channels.cache.find((channel) => {
+        return channel.name === categoryConfig;
+    })
+    if (!category) {
+        console.log(chalk.red(`Missing required moderated category under the name of ${categoryConfig} in ${guild.id}`));
+        return interaction.editReply(`Missing required moderated category under the name of ${categoryConfig}!`)
+    }
 
     const channel = await guild.channels.create({
         name: `moderated-${user.displayName}`,
+        parent: category.id,
         reason: `Sent to moderated chanel by ${interaction.user.displayName}`,
         permissionOverwrites: [
             {
@@ -144,9 +155,8 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
             )
     });
 
-    interaction.editReply({
-        content: `<@${user.id}> has successfully been moderated!`
-    })
+    return interaction.editReply(`<@${user.id}> has successfully been moderated!`)
+        .catch(console.error);
 }
 
 async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
@@ -180,8 +190,11 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         .then((messages) => {
             if (!messages) return;
 
-            const formattedData = messages.map(message => `${message.createdAt} ${message.author.displayName} : ${message.content}`)
-            return new AttachmentBuilder(Buffer.from(formattedData.join('\n'), 'utf-8'), { name: `${channel.name}.txt` })
+            const formattedData = messages
+                .map(message => `${message.createdAt} ${message.author.displayName} : ${message.content}`)
+                .join('\n');
+
+            return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${channel.name}.txt` })
         })
         .catch(console.error);
 
@@ -207,7 +220,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
 
     const botLogOptions: BotLogOptions['data'] = {
         title: 'User released from moderated channel',
-        embed: embed,
+        embed: embed
     }
     if (messageAttachment) botLogOptions.attachments = [messageAttachment];
 
@@ -218,9 +231,8 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         .catch(console.error);
 
     // Since command can be done out of deleted channel lets edit the reply! Ignore errors since deleting the message channel will do so
-    await interaction.editReply({
-        content: `<@${user.id}> has successfully been released!`
-    }).catch(() => {});
+    return await interaction.editReply(`<@${user.id}> has successfully been released!`)
+        .catch(() => {});
 }
 
 async function archiveMessages(channel: GuildBasedChannel, limit: number = 500) {
