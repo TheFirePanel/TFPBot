@@ -1,4 +1,8 @@
-import { Events, type DMChannel, type GuildChannel } from 'discord.js'
+import {
+    Events,
+    type DMChannel,
+    type GuildChannel
+} from 'discord.js'
 import { Utility } from '../../typings/index.js';
 
 /**
@@ -44,7 +48,6 @@ const uhOhChannelDelete: Utility = {
                 if (!res || res.numDeletedRows <= 0) return;
                 console.log(`Removed channel (${channel.id}) from the moderated channels database as it was deleted.`)
             });
-            
     }
 }
 

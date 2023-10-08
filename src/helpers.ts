@@ -1,7 +1,8 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EmbedBuilder, Guild, TextChannel, ColorResolvable } from 'discord.js';
+import { EmbedBuilder, TextChannel, MessageCreateOptions } from 'discord.js';
+import { BotLogOptions } from './typings/helpers.js';
 
 /**
  * Read a specified directory and grab typescript or javascript files
@@ -43,18 +44,14 @@ export function getFileName(path: string): string {
         .replace(/^.*(\\|\/|\:)/, '');
 }
 
-export function sendBotLog(guild: Guild, data: { 
-        title: string,
-        color?: ColorResolvable, 
-        embed?: EmbedBuilder
-    } = {
+export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['data'] = {
         title: 'Bot Log',
         color: 'Red'
     }): void {
         if (!guild) return;
 
         // Get data and create a constant for easy readability
-        const { embed, title, color } = data
+        const { embed, title, color, attachments } = data
         // Ternary creates a new embed object if not supplied initially
         const embedToSend = (embed ? embed : new EmbedBuilder())
             .setColor(color || 'Red')
@@ -66,10 +63,14 @@ export function sendBotLog(guild: Guild, data: {
             return (channel.name === guild.client.getConfig('botLogsChannel', guild.id) );
         }) as TextChannel);
         if (!logChannel) return;
-        
-        logChannel.send({
+
+        // Generate send options
+        const sendOptions: MessageCreateOptions = {
             embeds: [embedToSend]
-        })
+        }
+        if (attachments) sendOptions.files = attachments
+        
+        logChannel.send(sendOptions);
 }
 
 export default {};

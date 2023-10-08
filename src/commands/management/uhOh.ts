@@ -1,14 +1,18 @@
 import { 
+    AttachmentBuilder,
     ChatInputCommandInteraction,
     CommandInteractionOption,
     EmbedBuilder,
+    FetchMessagesOptions,
     Guild,
+    GuildBasedChannel,
     GuildMember,
     PermissionFlagsBits,
     SlashCommandBuilder
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
+import { BotLogOptions } from '../../typings/helpers.js';
 
 const uhOhCommand: Command = {
     data: new SlashCommandBuilder()
@@ -145,15 +149,19 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
 }
 
 async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
-    const channel = await interaction.client.db
+    const channelId = await interaction.client.db
         .selectFrom('mod_channels')
-        .selectAll()
+        .select('channel_id')
         .executeTakeFirst()
+        .then((channel) => {
+            if (!channel) return null;
+            return channel.channel_id
+        })
         .catch(console.error);
-    if (!channel) return;
+    if (!channelId) return;
 
-    const channelToDelete = guild.channels.cache.get(channel.channel_id);
-    if (!channelToDelete) return;
+    const channel = await guild.channels.fetch(channelId);
+    if (!channel || !channel.isTextBased()) return;
 
     const { member, user } = userOption;
     if (!user || !member ) return;
@@ -167,7 +175,24 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
             .catch(console.error);
     }
 
-    await channelToDelete
+    const messageAttachment = await archiveMessages(channel)
+        .then((messages) => {
+            if (!messages) return;
+            
+            const formattedData = messages.map(message => `${message.createdAt} ${message.author.displayName} : ${message.content}`)
+            return new AttachmentBuilder(Buffer.from(formattedData.join('\n'), 'utf-8'), { name: `${channel.name}.txt` })
+        })
+        .catch(console.error);
+
+
+    const botLogOptions: BotLogOptions['data'] = {
+        title: 'User released from moderated channel',
+    }
+    if (messageAttachment) botLogOptions.attachments = [messageAttachment];
+
+    sendBotLog(guild, botLogOptions);
+
+    await channel
         .delete()
         .catch(console.error);
 
@@ -175,6 +200,31 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     await interaction.editReply({
         content: `<@${user.id}> has successfully been released!`
     }).catch(() => {});
+}
+
+async function archiveMessages(channel: GuildBasedChannel, limit: number = 500) {
+    if (!channel.isTextBased()) return;
+
+    const archivedMessages = [];
+    let last_id;
+
+    while (true) {
+        const options: FetchMessagesOptions = {
+            limit: 100
+        }
+        if (last_id) options.before = last_id;
+
+        const messages = await channel.messages.fetch(options)
+            .catch(console.error)
+        if (!messages) break;
+        
+        archivedMessages.push(...messages.values());
+        last_id = messages.last()?.id;
+
+        if (messages.size != 100 || archivedMessages.length >= limit) break;
+    }
+
+    return archivedMessages;
 }
 
 export default uhOhCommand;
