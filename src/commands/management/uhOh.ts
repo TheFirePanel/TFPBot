@@ -191,7 +191,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
             if (!messages) return;
 
             const formattedData = messages
-                .map(message => `${message.createdAt} ${message.author.displayName} : ${message.content}`)
+                .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.content}`)
                 .join('\n');
 
             return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${channel.name}.txt` })

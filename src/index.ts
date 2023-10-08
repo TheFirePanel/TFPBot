@@ -12,7 +12,12 @@ import { pathToFileURL } from 'node:url';
 import color from 'chalk';
 
 // Create client
-const client: Client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client: Client = new Client({ 
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent
+    ]
+});
 
 // Database imports
 import { db } from './database/database.js';
