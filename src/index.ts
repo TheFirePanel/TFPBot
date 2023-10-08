@@ -34,7 +34,7 @@ const storedConfig: {
 const globalConfig: { [key: string]: string } = {
     'botLogsChannel': 'bot-logs', // sendBotLog
     'youtubeWatcherChannel': 'new-videos', // youtubeWatcher
-    'moderatedCategory': 'Moderated Channels',
+    'moderatedCategory': 'Moderated Channels', // uhOh
     'moderatedIsolationRole': 'Moderated' // uhOh
 }
 

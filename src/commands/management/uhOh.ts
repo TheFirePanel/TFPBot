@@ -1,18 +1,14 @@
 import { 
-    AttachmentBuilder,
     EmbedBuilder,
     PermissionFlagsBits,
     SlashCommandBuilder,
     type ChatInputCommandInteraction,
     type CommandInteractionOption,
-    type FetchMessagesOptions,
     type Guild,
-    type GuildBasedChannel,
     type GuildMember,
-    type Message,
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
-import { sendBotLog } from '../../helpers.js';
+import { archiveMessages, sendBotLog } from '../../helpers.js';
 import { BotLogOptions } from '../../typings/index.js';
 import chalk from 'chalk';
 
@@ -186,19 +182,9 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
             .catch(console.error);
     }
 
-    const messageAttachment = await archiveMessages(channel)
-        .then((messages) => {
-            if (!messages) return;
-
-            const formattedData = messages
-                .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.content}`)
-                .join('\n');
-
-            return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${channel.name}.txt` })
-        })
+    const messageAttachment = await archiveMessages(channel, { attachment: { name: channel.name }})
         .catch(console.error);
 
-    
     const embed = new EmbedBuilder()
         .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
         .addFields(
@@ -233,31 +219,6 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     // Since command can be done out of deleted channel lets edit the reply! Ignore errors since deleting the message channel will do so
     return await interaction.editReply(`<@${user.id}> has successfully been released!`)
         .catch(() => {});
-}
-
-async function archiveMessages(channel: GuildBasedChannel, limit: number = 500) {
-    if (!channel.isTextBased()) return;
-
-    const archivedMessages: Message[] = [];
-    let last_id;
-
-    while (true) {
-        const options: FetchMessagesOptions = {
-            limit: 100
-        }
-        if (last_id) options.before = last_id;
-
-        const messages = await channel.messages.fetch(options)
-            .catch(console.error)
-        if (!messages) break;
-        
-        archivedMessages.push(...messages.values());
-        last_id = messages.last()?.id;
-
-        if (messages.size != 100 || archivedMessages.length >= limit) break;
-    }
-
-    return archivedMessages;
 }
 
 export default uhOhCommand;

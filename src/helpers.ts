@@ -1,7 +1,15 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EmbedBuilder, TextChannel, MessageCreateOptions } from 'discord.js';
+import {
+    AttachmentBuilder,
+    EmbedBuilder,
+    type TextChannel,
+    type MessageCreateOptions,
+    GuildBasedChannel,
+    Message,
+    FetchMessagesOptions
+} from 'discord.js';
 import { BotLogOptions } from './typings/index.js';
 
 /**
@@ -44,6 +52,12 @@ export function getFileName(path: string): string {
         .replace(/^.*(\\|\/|\:)/, '');
 }
 
+/**
+ * Send a message in a configured channel for what happens with the bot in a specific guild.
+ * @param guild The guild to send the bot log in
+ * @param data Data of what to send in the log message
+ * @returns void
+ */
 export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['data'] = {
         title: 'Bot Log',
         color: 'Red'
@@ -71,6 +85,46 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
         if (attachments) sendOptions.files = attachments
         
         logChannel.send(sendOptions);
+}
+
+/**
+ * Mainly used for uhOh command, this function provides the ability to archive a channel's content into a txt file or array.
+ * @param channel Guild channel to get message content of
+ * @param options Currently houses options like max limit and attachment creation
+ */
+export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number, attachment?: { name: string } }): Promise<AttachmentBuilder>;
+export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number }): Promise<Message[]>;
+export async function archiveMessages(channel: GuildBasedChannel, options: any) {
+    if (!channel.isTextBased()) return;
+    const { attachment, limit } = options;
+
+    const archivedMessages: Message[] = [];
+    let last_id;
+
+    while (true) {
+        const options: FetchMessagesOptions = {
+            limit: 100
+        }
+        if (last_id) options.before = last_id;
+
+        const messages = await channel.messages.fetch(options)
+            .catch(console.error)
+        if (!messages) break;
+        
+        archivedMessages.push(...messages.values());
+        last_id = messages.last()?.id;
+
+        if (messages.size != 100 || archivedMessages.length >= (limit || 500)) break;
+    }
+
+    if (attachment) {
+        const formattedData = archivedMessages
+            .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.content}`)
+            .join('\n');
+
+        return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${attachment.name}.txt` })
+    }
+    return archivedMessages;
 }
 
 export default {};
