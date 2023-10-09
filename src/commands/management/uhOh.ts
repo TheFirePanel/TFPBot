@@ -74,13 +74,13 @@ const uhOhCommand: Command = {
 }
 
 async function sendToModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
-    const { user, member } = userOption
+    const { user, member } = userOption;
     if (!user || !member ) return;
     
     const categoryConfig = interaction.client.getConfig('moderatedCategory', guild.id)
     const category = guild.channels.cache.find((channel) => {
         return channel.name === categoryConfig;
-    })
+    });
     if (!category) {
         console.log(chalk.red(`Missing required moderated category under the name of ${categoryConfig} in ${guild.id}`));
         return interaction.editReply(`Missing required moderated category under the name of ${categoryConfig}!`)
@@ -96,7 +96,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
                 allow: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]
             }
         ]
-    }).catch(console.error)
+    }).catch(console.error);
     if (!channel) return;
 
     await interaction.client.db
@@ -156,30 +156,34 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
 }
 
 async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
+    const { member, user } = userOption;
+    if (!user) return;
+
     const channelId = await interaction.client.db
         .selectFrom('mod_channels')
         .select('channel_id')
+        .where('user_id', '=', user.id)
         .executeTakeFirst()
         .then((channel) => {
             if (!channel) return null;
             return channel.channel_id
         })
         .catch(console.error);
-    if (!channelId) return;
+
+    if (!channelId) return interaction.editReply(``);
 
     const channel = await guild.channels.fetch(channelId);
     if (!channel || !channel.isTextBased()) return;
-
-    const { member, user } = userOption;
-    if (!user || !member ) return;
     
-    const role = guild.roles.cache.find((role) => {
-        return (role.name === guild.client.getConfig('moderatedIsolationRole'));
-    });
-    if (role) {
-        (member as GuildMember).roles
-            .remove(role.id)
-            .catch(console.error);
+    if (member) {
+        const role = guild.roles.cache.find((role) => {
+            return (role.name === guild.client.getConfig('moderatedIsolationRole'));
+        });
+        if (role) {
+            (member as GuildMember).roles
+                .remove(role.id)
+                .catch(console.error);
+        }
     }
 
     const messageAttachment = await archiveMessages(channel, { attachment: { name: channel.name }})
