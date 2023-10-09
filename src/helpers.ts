@@ -118,11 +118,11 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
 
     if (attachment) {
         const formattedData = archivedMessages
-            .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.content}`)
+            .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.cleanContent}`)
             .join('\n');
 
         if (formattedData.length <= 0) return null;
-        
+
         return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${attachment.name}.txt` })
     }
     return archivedMessages;
