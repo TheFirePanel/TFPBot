@@ -79,6 +79,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     const { user, member } = userOption;
     if (!user || !member ) return;
     
+    // Check if user is already moderated
     const alreadyModerated = await interaction.client.db
         .selectFrom('mod_channels')
         .select(({ fn }) => [
@@ -93,6 +94,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
         return interaction.editReply(`<@${user.id}> is already moderated, run release command if this is not the desired result.`)
     }
     
+    // Get category information
     const categoryConfig = interaction.client.getConfig('moderatedCategory', guild.id)
     const category = guild.channels.cache.find((channel) => {
         return channel.name === categoryConfig;
@@ -102,6 +104,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
         return interaction.editReply(`Missing required moderated category under the name of ${categoryConfig}!`)
     }
 
+    // Create channel
     const channel = await guild.channels.create({
         name: `moderated-${user.displayName}`,
         parent: category.id,
@@ -115,6 +118,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     }).catch(console.error);
     if (!channel) return;
 
+    // Insert channel into database
     await interaction.client.db
         .insertInto('mod_channels')
         .values({
@@ -140,6 +144,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
         }
     }
 
+    // Send bot log
     const reason = interaction.options.get('reason', true).value;
     sendBotLog(guild, {
         title: 'User sent to moderated channel',
@@ -167,6 +172,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
             )
     });
 
+    // End function
     return interaction.editReply(`<@${user.id}> has successfully been moderated!`)
         .catch(console.error);
 }
@@ -175,6 +181,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     const { member, user } = userOption;
     if (!user) return;
 
+    // Get channel from database
     const channel = await interaction.client.db
         .selectFrom('mod_channels')
         .select('channel_id')
@@ -183,6 +190,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         .then(async (channelIds) => {
             if (!channelIds) return null;
 
+            // If channel wasn't deleted and we somehow didn't catch it, delete. Return first active channel.
             const channels: GuildBasedChannel[] = [];
             for (const channelId of channelIds) {
                 const channel = await guild.channels.fetch(channelId.channel_id)
@@ -206,6 +214,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     if (!channel) return interaction.editReply(`<@${user.id}> does not exist in the database.`);
     if (!channel.isTextBased()) return;
     
+    // If user is still in the guild then remove their role
     if (member) {
         const role = guild.roles.cache.find((role) => {
             return (role.name === guild.client.getConfig('moderatedIsolationRole'));
@@ -217,9 +226,11 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         }
     }
 
+    // Archive the channel's content
     const messageAttachment = await archiveMessages(channel, { attachment: { name: channel.name }})
         .catch(console.error);
 
+    // Build bot log
     const embed = new EmbedBuilder()
         .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
         .addFields(
@@ -248,6 +259,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
 
     sendBotLog(guild, botLogOptions);
 
+    // Delete channel
     await channel
         .delete()
         .then(async () => {
@@ -258,6 +270,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         })
         .catch(console.error);
 
+    // End function
     return;
 }
 
