@@ -4,11 +4,10 @@ import { fileURLToPath } from 'node:url';
 import {
     AttachmentBuilder,
     EmbedBuilder,
-    type TextChannel,
     type MessageCreateOptions,
-    GuildBasedChannel,
-    Message,
-    FetchMessagesOptions
+    type GuildBasedChannel,
+    type Message,
+    type FetchMessagesOptions
 } from 'discord.js';
 import { BotLogOptions } from './typings/index.js';
 
@@ -73,10 +72,10 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.version}`});
 
-        const logChannel = (guild.channels.cache.find((channel) => {
+        const logChannel = guild.channels.cache.find((channel) => {
             return (channel.name === guild.client.getConfig('botLogsChannel', guild.id) );
-        }) as TextChannel);
-        if (!logChannel) return;
+        });
+        if (!logChannel || !logChannel.isTextBased()) return;
 
         // Generate send options
         const sendOptions: MessageCreateOptions = {
@@ -122,6 +121,8 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
             .map(message => `[${message.createdAt.toLocaleString()}] ${message.author.displayName}(${message.author.id}) : ${message.content}`)
             .join('\n');
 
+        if (formattedData.length <= 0) return null;
+        
         return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${attachment.name}.txt` })
     }
     return archivedMessages;

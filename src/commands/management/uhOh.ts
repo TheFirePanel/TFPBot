@@ -2,9 +2,11 @@ import {
     EmbedBuilder,
     PermissionFlagsBits,
     SlashCommandBuilder,
+    RESTJSONErrorCodes,
     type ChatInputCommandInteraction,
     type CommandInteractionOption,
     type Guild,
+    type GuildBasedChannel,
     type GuildMember,
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
@@ -48,7 +50,7 @@ const uhOhCommand: Command = {
         .setName('uhoh')
         .setDescription('Moves mentioned user to a private channel for moderation discussion.'),
     async execute(interaction: ChatInputCommandInteraction) {
-        if (!interaction.channel?.isTextBased || !interaction.inCachedGuild()) return;
+        if (!interaction.channel || !interaction.channel.isTextBased() || !interaction.inCachedGuild()) return;
 
         const subCommand = interaction.options.getSubcommand();
 
@@ -159,21 +161,36 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     const { member, user } = userOption;
     if (!user) return;
 
-    const channelId = await interaction.client.db
+    const channel = await interaction.client.db
         .selectFrom('mod_channels')
         .select('channel_id')
         .where('user_id', '=', user.id)
-        .executeTakeFirst()
-        .then((channel) => {
-            if (!channel) return null;
-            return channel.channel_id
+        .execute()
+        .then(async (channelIds) => {
+            if (!channelIds) return null;
+
+            const channels: GuildBasedChannel[] = [];
+            for (const channelId of channelIds) {
+                const channel = await guild.channels.fetch(channelId.channel_id)
+                    .catch((error) => {
+                        if (error.code === RESTJSONErrorCodes.UnknownChannel) {
+                            interaction.client.db
+                                .deleteFrom('mod_channels')
+                                .where('channel_id', '=', channelId.channel_id)
+                                .execute();
+                        }
+                    })
+                
+                if (!channel) continue;
+                channels.push(channel);
+            }
+
+            return channels[0];
         })
         .catch(console.error);
 
-    if (!channelId) return interaction.editReply(``);
-
-    const channel = await guild.channels.fetch(channelId);
-    if (!channel || !channel.isTextBased()) return;
+    if (!channel) return interaction.editReply(`<@${user.id}> does not exist in the database.`);
+    if (!channel.isTextBased()) return;
     
     if (member) {
         const role = guild.roles.cache.find((role) => {
@@ -207,6 +224,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
                 inline: true
             }
         )
+        
 
     const botLogOptions: BotLogOptions['data'] = {
         title: 'User released from moderated channel',
@@ -218,11 +236,15 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
 
     await channel
         .delete()
+        .then(async () => {
+            if (!interaction || (interaction.channelId === channel.id)) return;
+            
+            await interaction.editReply(`<@${user.id}> has successfully been released!`)
+                .catch(console.error);
+        })
         .catch(console.error);
 
-    // Since command can be done out of deleted channel lets edit the reply! Ignore errors since deleting the message channel will do so
-    return await interaction.editReply(`<@${user.id}> has successfully been released!`)
-        .catch(() => {});
+    return;
 }
 
 export default uhOhCommand;
