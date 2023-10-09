@@ -79,6 +79,20 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     const { user, member } = userOption;
     if (!user || !member ) return;
     
+    const alreadyModerated = await interaction.client.db
+        .selectFrom('mod_channels')
+        .select(({ fn }) => [
+            fn.count<number>('channel_id').as('channel_count')
+        ])
+        .executeTakeFirst()
+        .then((count) => {
+            return (count && count.channel_count > 0)
+        });
+
+    if (alreadyModerated) {
+        return interaction.editReply(`<@${user.id}> is already moderated, run release command if this is not the desired result.`)
+    }
+    
     const categoryConfig = interaction.client.getConfig('moderatedCategory', guild.id)
     const category = guild.channels.cache.find((channel) => {
         return channel.name === categoryConfig;
