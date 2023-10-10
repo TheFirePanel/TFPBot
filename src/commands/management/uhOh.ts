@@ -1,4 +1,5 @@
-import { 
+import {
+    codeBlock,
     EmbedBuilder,
     PermissionFlagsBits,
     SlashCommandBuilder,
@@ -153,7 +154,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
             .addFields(
                 {
                     name: '📖Channel',
-                    value: `<#${channel.id}> \n (**${channel.name}**)`,
+                    value: `<#${channel.id}> \n ${codeBlock(channel.name)}`,
                 },
                 {
                     name: '🙍User',
@@ -167,7 +168,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
                 },
                 {
                     name: '🗒️Reason',
-                    value: ((reason as string) || 'No reason provided')
+                    value: codeBlock(((reason as string) || 'No reason provided'))
                 }
             )
     });
@@ -227,7 +228,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     }
 
     // Archive the channel's content
-    const messageAttachment = await archiveMessages(channel, { attachment: { name: channel.name }})
+    const messageAttachment = await archiveMessages(channel, { attachment: { name: `${user.displayName}[${Date.now()}]` }})
         .catch(console.error);
 
     // Build bot log
@@ -236,7 +237,7 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         .addFields(
             {
                 name: '📖Channel',
-                value: `**${channel.name}**`,
+                value: codeBlock(channel.name)
             },
             {
                 name: '🙍User',
