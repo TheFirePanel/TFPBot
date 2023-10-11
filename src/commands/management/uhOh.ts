@@ -56,12 +56,15 @@ const uhOhCommand: Command = {
         const subCommand = interaction.options.getSubcommand();
 
         const userOption = interaction.options.get('user', true);
-        if (!userOption) return interaction.reply({ content: `I have not recieved a user to moderate!`, ephemeral: true });
+        if (!userOption || !userOption.user) return interaction.reply({ content: `I have not recieved a valid user to moderate!`, ephemeral: true })
+            .catch(console.error);
 
         // This should never run but we will do this anyway, command is blocked from dms
-        if (!interaction.guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true });
+        if (!interaction.guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true })
+            .catch(console.error);
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: true })
+            .catch(console.error);
 
         switch(subCommand) {
             case 'send':
@@ -93,6 +96,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
 
     if (alreadyModerated) {
         return interaction.editReply(`<@${user.id}> is already moderated, run release command if this is not the desired result.`)
+            .catch(console.error);
     }
     
     // Get category information
@@ -103,6 +107,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     if (!category) {
         console.log(chalk.red(`Missing required moderated category under the name of ${categoryConfig} in ${guild.id}`));
         return interaction.editReply(`Missing required moderated category under the name of ${categoryConfig}!`)
+            .catch(console.error);
     }
 
     // Create channel
@@ -174,8 +179,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     });
 
     // End function
-    return interaction.editReply(`<@${user.id}> has successfully been moderated!`)
-        .catch(console.error);
+    return;
 }
 
 async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
@@ -212,7 +216,8 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
         })
         .catch(console.error);
 
-    if (!channel) return interaction.editReply(`<@${user.id}> does not exist in the database.`);
+    if (!channel) return interaction.editReply(`<@${user.id}> does not exist in the database.`)
+        .catch(console.error);
     if (!channel.isTextBased()) return;
     
     // If user is still in the guild then remove their role
