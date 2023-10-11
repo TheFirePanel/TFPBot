@@ -75,9 +75,12 @@ const uhOhCommand: Command = {
                 break;
         }
 
-        if (!interaction.replied) {
+        // Since we delete a channel sometimes, check if the channel exists too
+        if (!interaction.replied && interaction.channel) {
             interaction.editReply(`Function has completed but no reply was given, please contact a bot administrator.`)
+                .catch(console.error);
         }
+        
         return;
     }
 }
@@ -272,13 +275,13 @@ async function releaseFromModerated(guild: Guild, userOption: CommandInteraction
     // Delete channel
     await channel
         .delete()
-        .then(async () => {
-            if (!interaction || (interaction.channelId === channel.id)) return;
-            
-            await interaction.editReply(`<@${user.id}> has successfully been released!`)
-                .catch(console.error);
-        })
         .catch(console.error);
+
+    // Only send a reply if the channel still exists
+    if (interaction.channel) {
+        await interaction.editReply(`<@${user.id}> has successfully been released!`)
+            .catch(console.error);
+    }
 
     // End function
     return;
