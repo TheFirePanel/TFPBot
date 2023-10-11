@@ -68,13 +68,16 @@ const uhOhCommand: Command = {
 
         switch(subCommand) {
             case 'send':
-                sendToModerated(interaction.guild, userOption, interaction);
+                await sendToModerated(interaction.guild, userOption, interaction);
                 break;
             case 'release':
-                releaseFromModerated(interaction.guild, userOption, interaction);
+                await releaseFromModerated(interaction.guild, userOption, interaction);
                 break;
         }
 
+        if (!interaction.replied) {
+            interaction.editReply(`Function has completed but no reply was given, please contact a bot administrator.`)
+        }
         return;
     }
 }
