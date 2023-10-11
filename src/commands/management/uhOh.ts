@@ -179,7 +179,8 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
     });
 
     // End function
-    return;
+    return interaction.editReply(`<@${user.id}> has successfully been moderated!`)
+        .catch(console.error);
 }
 
 async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
