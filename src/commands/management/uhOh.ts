@@ -169,21 +169,21 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
             .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
             .addFields(
                 {
-                    name: '📖Channel',
+                    name: '📖 Channel',
                     value: `<#${channel.id}> \n ${codeBlock(channel.name)}`,
                 },
                 {
-                    name: '🙍User',
+                    name: '🙍 User',
                     value: `<@${user.id}>`,
                     inline: true
                 },
                 {
-                    name: '🛡️Staff Member',
+                    name: '🛡️ Staff Member',
                     value: `<@${interaction.user.id}>`,
                     inline: true
                 },
                 {
-                    name: '🗒️Reason',
+                    name: '🗒️ Reason',
                     value: codeBlock(((reason as string) || 'No reason provided'))
                 }
             )

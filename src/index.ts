@@ -10,6 +10,7 @@ import {
     Client,
     Collection,
     GatewayIntentBits,
+    Partials,
 } from 'discord.js';
 import { getFiles } from './helpers.js';
 import { pathToFileURL } from 'node:url';
@@ -19,7 +20,12 @@ import color from 'chalk';
 const client: Client = new Client({ 
     intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessages,
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message
     ]
 });
 
