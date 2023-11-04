@@ -12,7 +12,7 @@ const githubRepo = 'https://raw.githubusercontent.com/TheFirePanel/SimplexModelC
  */
 const simplexModelChecker: Utility = {
     name: 'simplexModelChecker',
-    event: Events.ClientReady,
+    events: Events.ClientReady,
     cache: {
         categories: [],
         autoDevices: [],

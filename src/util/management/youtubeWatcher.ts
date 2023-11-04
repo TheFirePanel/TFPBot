@@ -23,7 +23,7 @@ type LatestVideo = {
  */
 const youtubeWatcher: Utility = {
     name: 'youtubeWatcher',
-    event: Events.ClientReady,
+    events: Events.ClientReady,
     cache: {
         refresh: true,
         announcementChannels: [],

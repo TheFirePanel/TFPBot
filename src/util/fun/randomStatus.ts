@@ -24,7 +24,7 @@ const statusMessages: ActivityOptions[] = [
  */
 const randomStatus: Utility = {
     name: 'randomStatus',
-    event: Events.ClientReady,
+    events: Events.ClientReady,
     execute(client: Client) {
         const initialStatus = statusMessages[Math.floor(statusMessages.length * Math.random())];
         if (!initialStatus) return console.warn('Missing statusMessages, not running utility.', this.name);

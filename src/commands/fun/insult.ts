@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { type Command } from '../../typings/index.js';
 
-const insults: string[] = ['Putting this %s mid sentence to test replace reply. %s %s'];
+const insults: string[] = ['%s looks like an EST fan.'];
 
 const insultCommand: Command = {
     data: new SlashCommandBuilder()

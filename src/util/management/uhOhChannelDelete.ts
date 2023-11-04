@@ -13,7 +13,7 @@ import { type Utility } from '../../typings/index.js';
  */
 const uhOhChannelDelete: Utility = {
     name: 'uhOhChannelDelete',
-    event: Events.ChannelDelete,
+    events: Events.ChannelDelete,
     async execute(channel: DMChannel | GuildChannel) {
         if (!channel.isTextBased() || channel.isDMBased()) return;
 

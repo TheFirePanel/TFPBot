@@ -42,11 +42,10 @@ const storedConfig: {
 
 // Export config values as a type for type checking, guilds will use same keys as they are just overwrites of default values
 export const globalConfig = {
-    // Bot Log
+    // Log Channels
     'botLogsChannel': 'bot-logs', // sendBotLog
-
-    // youtubeWatcher
-    'youtubeWatcherChannel': 'new-videos',
+    'joinLeaveChannel': 'join-leave', // joinLeaveLog
+    'youtubeWatcherChannel': 'new-videos', // youtubeWatcher
 
     // uhOh
     'moderatedCategory': 'Moderated Channels',
@@ -132,11 +131,13 @@ for (const file of eventFiles) {
     const event = await import(pathToFileURL(file).href)
         .then((event) => event.default);
     // Go ahead and calculate used utilities beforehand
-    const utilsToRun = client.util.filter((util) => util.event === event.name);
+    const utilsToRun = client.util.filter((util) => util.events?.includes(event.name));
 
     client[event.once ? 'once' : 'on'](event.name, (...args) => {
         event.execute(...args)
-        utilsToRun.each((util) => { util.execute(...args); });
+        utilsToRun.each((util) => { 
+            util.execute(...args, event.name); 
+        });
     });
 
     console.log(color.green(`Loaded event ${color.bgCyan(event.name)}`));

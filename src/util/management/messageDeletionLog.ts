@@ -16,7 +16,7 @@ import { sendBotLog } from '../../helpers.js';
  */
 const messageDeletionLog: Utility = {
     name: 'messageDeletionLog',
-    event: Events.MessageDelete,
+    events: Events.MessageDelete,
     async execute(message: PartialMessage | Message) {
         if (!message || !message.guild) return;
         if (message.channel.isDMBased()) return;

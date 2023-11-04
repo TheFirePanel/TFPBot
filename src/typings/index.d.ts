@@ -41,9 +41,9 @@ export interface Command {
 
 export interface Utility {
     name: string,
-    event?: Events,
+    events?: Events | Events[],
     cache?: { [key: string]: Array | Object | string },
-    execute: (...args: any) => void
+    execute: (...args: any, event?: Events) => void
 }
 
 export interface BotLogOptions {
