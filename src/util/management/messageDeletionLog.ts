@@ -1,11 +1,9 @@
 import {
-    AuditLogEvent,
-    // codeBlock,
+    codeBlock,
     EmbedBuilder,
     Events,
     type PartialMessage,
     type Message,
-    type GuildAuditLogsEntry,
 } from 'discord.js'
 import type { Utility } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
@@ -22,35 +20,42 @@ const messageDeletionLog: Utility = {
     async execute(message: PartialMessage | Message) {
         if (!message || !message.guild) return;
         if (message.channel.isDMBased()) return;
+        if (!message.partial && (message.author?.id === message.client.user.id)) return;
 
-        let auditLog: GuildAuditLogsEntry | undefined;
-        if (message.guild.members.me?.permissions.has('ViewAuditLog')) {
-            auditLog = await message.guild.fetchAuditLogs({
-                limit: 1,
-                type: AuditLogEvent.MessageDelete
-            }).then((log) => {
-                const entry = log.entries.first();
-                if (!entry) return undefined;
-                // Check if audit log is for channel the message was in
-                if (entry.extra.channel.id !== message.channel.id) return undefined;
-                console.log(entry.createdTimestamp, Date.now())
+        console.log(message)
 
-                return entry;
-            })
+        const embed = new EmbedBuilder();
+        embed.addFields(
+                {
+                    name: '📖 Channel ID',
+                    value: `${codeBlock(message.channel.id)} <#${message.channel.id}>`,
+                    inline: true
+                },
+                {
+                    name: '💵 Message ID',
+                    value: codeBlock(message.id),
+                    inline: true
+                }
+            )
+
+        if (!message.partial) {
+            embed.addFields(
+                {
+                    name: '🙍 User ID',
+                    value: `${codeBlock(message.author.id)} <@${message.author.id}>`
+                },
+                {
+                    name: '🗒️ Content',
+                    value: codeBlock(message.content ? message.content : 'No message content.')
+                }
+            )
+            .setAuthor({ name: message.author.displayName, iconURL: message.author.displayAvatarURL() })
         }
-
-        console.log(auditLog?.id);
 
         sendBotLog(message.guild, {
             title: 'Message Deleted',
             color: 'Red',
-            embed: new EmbedBuilder()
-                .addFields(
-                    {
-                        name: '📖 Channel',
-                        value: `<#${message.channel.id}>`
-                    },
-                )
+            embed: embed
         })
     }
 }
