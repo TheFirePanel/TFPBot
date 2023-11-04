@@ -1,3 +1,7 @@
+# Local Files
 node_modules
 .env
 dist/
+
+# OS Files
+.DS_STORE
