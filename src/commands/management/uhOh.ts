@@ -50,7 +50,7 @@ const uhOhCommand: Command = {
         .setDMPermission(false)
         .setName('uhoh')
         .setDescription('Moves mentioned user to a private channel for moderation discussion.'),
-    async execute(interaction: ChatInputCommandInteraction) {
+    async execute(interaction) {
         if (!interaction.channel || !interaction.channel.isTextBased() || !interaction.inCachedGuild()) return;
 
         const subCommand = interaction.options.getSubcommand();

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, type ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { Command } from '../../typings/index.js';
 
 const youtubeWatcherCommand: Command = {
@@ -29,7 +29,7 @@ const youtubeWatcherCommand: Command = {
         .setDMPermission(false)
         .setName('youtubewatcher')
         .setDescription('Configuration for the youtubeWatcher!'),
-    async execute(interaction: ChatInputCommandInteraction) {
+    async execute(interaction) {
         const subCommand = interaction.options.getSubcommand();
         const client = interaction.client;
 
