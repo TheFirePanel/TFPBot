@@ -83,7 +83,9 @@ await client.refreshConfig()
         console.log(color.yellow(`Loaded configuration from database, continuing startup`))
     });
 
-client.getConfig = function(option, guild) {
+client.getConfig = function (option?: any, guild?: any): any {
+    if (!option) return globalConfig;
+
     const config = storedConfig[(guild ? guild : 'GLOBAL')]
     if (!config?.get(option)) return storedConfig['GLOBAL']?.get(option);
 
