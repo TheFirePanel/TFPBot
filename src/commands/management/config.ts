@@ -1,19 +1,16 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import {
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    // type ChatInputCommandInteraction
+} from 'discord.js';
 import { type Command } from '../../typings/index.js';
 
 const configCommand: Command = {
     data: new SlashCommandBuilder()
         .addSubcommand(option =>
             option
-                .setName('get')
-                .setDescription('Get current configuration value from supplied config option.')
-                .addStringOption(option => 
-                    option
-                        .setName('option')
-                        .setDescription('The config option to get the value for.')
-                        .setRequired(true)
-                        .setAutocomplete(true)
-                )
+                .setName('list')
+                .setDescription('Display all configuration options and values.')
         )
         .addSubcommand(option =>
             option
@@ -36,23 +33,28 @@ const configCommand: Command = {
         .setName('config')
         .setDescription('Configures local guild options.')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-    async autocomplete(interaction) {
-        const focusedValue = interaction.options.getFocused();
-        const filtered: string[] = [];
-        const config = interaction.client.getConfig();
+    async execute(interaction) {
+        const subCommand = interaction.options.getSubcommand();
 
-        for (const key in config) {
-            if (key.startsWith(focusedValue)) {
-                filtered.push(key);
-            }
+        await interaction.deferReply({ ephemeral: true })
+            .catch(console.error);
+
+        switch(subCommand) {
+            case 'list':
+                break;
         }
 
-        await interaction.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
-        ).catch(console.error);
-    }, 
-    async execute() {
+        if (!interaction.replied && interaction.channel) {
+            interaction.editReply(`Function has completed but no reply was given, please contact a bot administrator.`)
+                .catch(console.error);
+        }
     }
 }
+
+/*
+async function listConfig(interaction: ChatInputCommandInteraction) {
+
+}
+*/
 
 export default configCommand;
