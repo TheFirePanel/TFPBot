@@ -38,12 +38,13 @@ const messageDeletionLog: Utility = {
             case Events.GuildMemberRemove:
                 embed
                     .setTitle(`Departure from ${member.guild.name}!`)
-                    .setDescription(`<@${member.id}> has left the server. 😞`)
+                    .setDescription(`${member.displayName} has left the server. 😞`)
                     .setColor('Red');
                 break;
         }
 
         logChannel.send({
+            content: `<@${member.id}>`,
             embeds: [embed]
         }).catch(console.error);
     }
