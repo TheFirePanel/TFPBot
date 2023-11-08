@@ -1,9 +1,11 @@
 import {
+    // EmbedBuilder,
     SlashCommandBuilder,
     PermissionFlagsBits,
-    // type ChatInputCommandInteraction
+    // type ChatInputCommandInteraction,
 } from 'discord.js';
 import { type Command } from '../../typings/index.js';
+// import { chunkEntries } from '../../helpers.js';
 
 const configCommand: Command = {
     data: new SlashCommandBuilder()
@@ -32,8 +34,11 @@ const configCommand: Command = {
         )
         .setName('config')
         .setDescription('Configures local guild options.')
+        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction) {
+        if (!interaction.inCachedGuild()) return;
+
         const subCommand = interaction.options.getSubcommand();
 
         await interaction.deferReply({ ephemeral: true })
@@ -41,6 +46,7 @@ const configCommand: Command = {
 
         switch(subCommand) {
             case 'list':
+                // listConfig(interaction);
                 break;
         }
 
@@ -51,10 +57,32 @@ const configCommand: Command = {
     }
 }
 
-/*
-async function listConfig(interaction: ChatInputCommandInteraction) {
+/*async function listConfig(interaction: ChatInputCommandInteraction) {
+    const { client, guild } = interaction;
+    if (!guild) return;
 
-}
-*/
+    const configArray = client
+        .getConfig(null, guild.id)
+        .map((option, value) => ({ option, value }));
+    const configChunks = chunkEntries(configArray, 2);
+    
+    const embeds: EmbedBuilder[] = [];
+
+    configChunks.forEach((chunk) => {
+        const embed = new EmbedBuilder()
+            .setColor('Red')
+            .setTimestamp();
+
+        chunk.forEach(([option, value]) => {
+            console.log(option, value)
+        })
+    })
+
+    const embed = new EmbedBuilder()
+        .setColor('Red')
+        .setTimestamp();
+
+    return embed;
+}*/
 
 export default configCommand;

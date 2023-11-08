@@ -129,4 +129,20 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
     return archivedMessages;
 }
 
+/**
+ * Divides up supplied array into configurable chunks, can be used for pagination or to get around embed field limit
+ * @param array Given array to split up
+ * @param chunkSize The amount of entries to have in each chunk
+ */
+export function chunkEntries(array: any[], chunkSize: number): any[] {
+    const chunks: any[] = [];
+
+    for (let i = 0; i < array.length; i += chunkSize) {
+        const chunk = array.slice(i, i + chunkSize);
+        chunks.push(chunk)
+    }
+
+    return chunks
+}
+
 export default {};
