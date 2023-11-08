@@ -53,7 +53,7 @@ export const globalConfig = {
 
     // uhOh
     'moderatedCategory': 'Moderated Channels',
-    'moderatedIsolationRole': 'Moderated',
+    'moderatedIsolationRole': 'Moderated'
 }
 
 for (const [option, value] of Object.entries(globalConfig)) {
@@ -111,8 +111,6 @@ client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: 
     const configOption = config?.get(option)
     return configOption ? configOption : storedConfig['GLOBAL']?.get(option)
 }
-
-console.log(client.getConfig(null, '908908014965252116'))
 
 // #endregion Bot settings logic
 
