@@ -38,8 +38,11 @@ client.db = db;
 
 // Grab configurations from the database
 const storedConfig: {
+    ['GLOBAL']: Collection<string, string>
     [key: string]: Collection<string, string>
-} = {}
+} = {
+    'GLOBAL': new Collection()
+}
 
 // Export config values as a type for type checking, guilds will use same keys as they are just overwrites of default values
 export const globalConfig = {
@@ -50,15 +53,15 @@ export const globalConfig = {
 
     // uhOh
     'moderatedCategory': 'Moderated Channels',
-    'moderatedIsolationRole': 'Moderated'
+    'moderatedIsolationRole': 'Moderated',
 }
 
-storedConfig['GLOBAL'] = new Collection();
 for (const [option, value] of Object.entries(globalConfig)) {
     storedConfig['GLOBAL']?.set(option, value)
 }
 
 client.refreshConfig = async function() {
+    console.log(color.yellow(`Got request to refresh/load config from database`))
     await client.db
         .selectFrom('configs')
         .selectAll()
@@ -73,24 +76,43 @@ client.refreshConfig = async function() {
                 if (!storedConfig[config.guild_id]) storedConfig[config.guild_id] = new Collection;
                 storedConfig[config.guild_id]?.set(config.option, config.value);
             })
+
+            console.log(color.yellow(`Loaded configuration from database`))
         })
 }
 
-console.log(color.yellow(`Loading configuration from database`))
+// Await startup of bot to load configuration from database
 await client.refreshConfig()
-    .catch(console.error)
-    .then(() => {
-        console.log(color.yellow(`Loaded configuration from database, continuing startup`))
-    });
+    .catch(console.error);
 
-client.getConfig = function (option?: keyof typeof globalConfig, guild?: string): any {
-    if (!option) return globalConfig;
+/**
+ * This command provides a dynamic way of configuring the bot, all guild base config values are stored in database
+ * @param option The config option to grab, provide none for all
+ * @param guild The guild to get the configuration for
+ */
+client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: string): any {
+    // If no parameters are given return global config
+    if (!option && !guild) return globalConfig;
 
     const config = storedConfig[(guild ? guild : 'GLOBAL')]
-    if (!config?.get(option)) return storedConfig['GLOBAL']?.get(option);
+    if (!config) return;
 
-    return config.get(option);
+    // If no option is given but guild is return the guild's config merged with the global config
+    if (!option && guild) return config
+        .merge(
+            storedConfig['GLOBAL'],
+            _ => ({ keep: false }),
+            y => ({ keep: true, value: y }),
+            (x, _) => ({ keep: true, value: x })
+        )
+
+    if (!option) return null;
+
+    const configOption = config?.get(option)
+    return configOption ? configOption : storedConfig['GLOBAL']?.get(option)
 }
+
+console.log(client.getConfig(null, '908908014965252116'))
 
 // #endregion Bot settings logic
 

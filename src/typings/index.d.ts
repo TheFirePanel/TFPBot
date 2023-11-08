@@ -25,7 +25,7 @@ declare module 'discord.js' {
         db: Kysely<DB>,
         util: Collection<string, Utility>
         getConfig(): typeof globalConfig,
-        getConfig(option?: keyof typeof globalConfig, guild?: string): string | undefined,
+        getConfig(option?: keyof typeof globalConfig | null, guild?: string): string | undefined,
         refreshConfig(): Promise<void>
     }
 }
