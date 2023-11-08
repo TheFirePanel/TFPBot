@@ -1,4 +1,5 @@
 import {
+    codeBlock,
     EmbedBuilder,
     SlashCommandBuilder,
     PermissionFlagsBits,
@@ -36,6 +37,21 @@ const configCommand: Command = {
         .setDescription('Configures local guild options.')
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+    async autocomplete(interaction) {
+        if (!interaction.inCachedGuild()) return;
+
+        const subCommand = interaction.options.getSubcommand();
+        if (subCommand !== 'set') return;
+
+        const { client, guild } = interaction;
+
+        const config = client
+            .getConfig(null, guild.id)
+            .map((_, option) => ({ name: option, value: option }));
+
+        await interaction.respond(config)
+            .catch(console.error);
+    },
     async execute(interaction) {
         if (!interaction.inCachedGuild()) return;
 
@@ -46,7 +62,10 @@ const configCommand: Command = {
 
         switch(subCommand) {
             case 'list':
-                listConfig(interaction);
+                await listConfig(interaction);
+                break;
+            case 'set':
+                // await setConfig(interaction);
                 break;
         }
 
@@ -64,33 +83,54 @@ async function listConfig(interaction: ChatInputCommandInteraction) {
     const configArray = client
         .getConfig(null, guild.id)
         .map((value, option) => ({ option, value }));
-    const configChunks: Array<{ option: string, value: string }[]> = chunkEntries(configArray, 2);
+    const configChunks = chunkEntries(configArray, 25);
     
     const embeds: EmbedBuilder[] = [];
 
     configChunks.forEach((chunk, i) => {
+        const page = i + 1;
         const embed = new EmbedBuilder()
             .setColor('Red')
             .setTimestamp()
             .setFooter({
-                text: `Page ${i + 1}-${configChunks.length}`
+                text: `Page ${page}-${configChunks.length}`
             });
+
+        if (page === 1) {
+            embed
+                .setTitle(`${guild.name} Bot Config`)
+                .setDescription('All values are current for this specific guild, to change a value use the command `/config set`.');
+        }
         
         chunk.forEach((config) => {
             embed.addFields({
                 name: config.option,
-                value: config.value
-            })
-        })
+                value: codeBlock(config.value)
+            });
+        });
 
-        embeds.push(embed)
+        embeds.push(embed);
     })
 
-    interaction.editReply({
+    await interaction.editReply({
         embeds: embeds
-    })
+    });
 
     return;
 }
+
+/*
+async function setConfig(interaction: ChatInputCommandInteraction) {
+    const { client, guild } = interaction;
+    if (!guild) return;
+
+    const option = interaction.options.get('option', true)
+    const value = interaction.options.get('value')
+
+    await client.db
+        .selectFrom('configs')
+        .select(['guild_id', 'option'])
+        .execute()
+}*/
 
 export default configCommand;
