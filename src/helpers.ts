@@ -134,8 +134,8 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
  * @param array Given array to split up
  * @param chunkSize The amount of entries to have in each chunk
  */
-export function chunkEntries(array: any[], chunkSize: number): any[] {
-    const chunks: any[] = [];
+export function chunkEntries<T>(array: T[], chunkSize: number): T[][] {
+    const chunks: T[][] = [];
 
     for (let i = 0; i < array.length; i += chunkSize) {
         const chunk = array.slice(i, i + chunkSize);
