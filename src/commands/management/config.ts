@@ -1,11 +1,11 @@
 import {
-    // EmbedBuilder,
+    EmbedBuilder,
     SlashCommandBuilder,
     PermissionFlagsBits,
-    // type ChatInputCommandInteraction,
+    type ChatInputCommandInteraction,
 } from 'discord.js';
 import { type Command } from '../../typings/index.js';
-// import { chunkEntries } from '../../helpers.js';
+import { chunkEntries } from '../../helpers.js';
 
 const configCommand: Command = {
     data: new SlashCommandBuilder()
@@ -46,7 +46,7 @@ const configCommand: Command = {
 
         switch(subCommand) {
             case 'list':
-                // listConfig(interaction);
+                listConfig(interaction);
                 break;
         }
 
@@ -57,32 +57,40 @@ const configCommand: Command = {
     }
 }
 
-/*async function listConfig(interaction: ChatInputCommandInteraction) {
+async function listConfig(interaction: ChatInputCommandInteraction) {
     const { client, guild } = interaction;
     if (!guild) return;
 
     const configArray = client
         .getConfig(null, guild.id)
-        .map((option, value) => ({ option, value }));
-    const configChunks = chunkEntries(configArray, 2);
+        .map((value, option) => ({ option, value }));
+    const configChunks: Array<{ option: string, value: string }[]> = chunkEntries(configArray, 2);
     
     const embeds: EmbedBuilder[] = [];
 
-    configChunks.forEach((chunk) => {
+    configChunks.forEach((chunk, i) => {
         const embed = new EmbedBuilder()
             .setColor('Red')
-            .setTimestamp();
-
-        chunk.forEach(([option, value]) => {
-            console.log(option, value)
+            .setTimestamp()
+            .setFooter({
+                text: `Page ${i + 1}-${configChunks.length}`
+            });
+        
+        chunk.forEach((config) => {
+            embed.addFields({
+                name: config.option,
+                value: config.value
+            })
         })
+
+        embeds.push(embed)
     })
 
-    const embed = new EmbedBuilder()
-        .setColor('Red')
-        .setTimestamp();
+    interaction.editReply({
+        embeds: embeds
+    })
 
-    return embed;
-}*/
+    return;
+}
 
 export default configCommand;
