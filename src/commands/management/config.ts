@@ -133,7 +133,11 @@ async function setConfig(interaction: ChatInputCommandInteraction) {
     }
 
     const configArray: ReadonlyArray<string> = Array.from(client.getConfig(null, guild.id).keys());
-    if (!configArray.includes(option)) return;
+    if (!configArray.includes(option)) {
+        return interaction.editReply({
+            content: 'You must provide a valid config option.'
+        })
+    }
  
     const existingConfig = await client.db
         .selectFrom('configs')
