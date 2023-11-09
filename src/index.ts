@@ -69,6 +69,11 @@ client.refreshConfig = async function() {
         .catch(console.error)
         .then((configs) => {
             if (!configs) return;
+
+            // Wipe existing guild configs
+            for (const guild in storedConfig) {
+                if (guild !== 'GLOBAL') storedConfig[guild] = new Collection();
+            }
             
             configs.forEach((config) => {
                 if (!config.value) return;
