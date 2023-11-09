@@ -65,7 +65,7 @@ const configCommand: Command = {
                 await listConfig(interaction);
                 break;
             case 'set':
-                // await setConfig(interaction);
+                await setConfig(interaction);
                 break;
         }
 
@@ -93,7 +93,7 @@ async function listConfig(interaction: ChatInputCommandInteraction) {
             .setColor('Red')
             .setTimestamp()
             .setFooter({
-                text: `Page ${page}-${configChunks.length}`
+                text: `Page ${page}-${configChunks.length} • Version ${process.env.version}`
             });
 
         if (page === 1) {
@@ -104,7 +104,7 @@ async function listConfig(interaction: ChatInputCommandInteraction) {
         
         chunk.forEach((config) => {
             embed.addFields({
-                name: config.option,
+                name: `⚙️ ${config.option}`,
                 value: codeBlock(config.value)
             });
         });
@@ -119,18 +119,89 @@ async function listConfig(interaction: ChatInputCommandInteraction) {
     return;
 }
 
-/*
 async function setConfig(interaction: ChatInputCommandInteraction) {
     const { client, guild } = interaction;
     if (!guild) return;
 
-    const option = interaction.options.get('option', true)
-    const value = interaction.options.get('value')
+    const option = interaction.options.get('option', true).value;
+    const value = interaction.options.get('value')?.value;
 
-    await client.db
+    if (typeof option !== 'string' || (typeof value !== 'string' && typeof value !== 'undefined')) {
+        return interaction.editReply({
+            content: 'You must only supply strings.'
+        });
+    }
+
+    const configArray: ReadonlyArray<string> = Array.from(client.getConfig(null, guild.id).keys());
+    if (!configArray.includes(option)) return;
+ 
+    const existingConfig = await client.db
         .selectFrom('configs')
-        .select(['guild_id', 'option'])
-        .execute()
-}*/
+        .select(({ fn }) => [
+            fn.count<number>('option').as('config_count')
+        ])
+        .where('guild_id', '=', guild.id)
+        .where('option', '=', option)
+        .executeTakeFirst()
+        .then((count) => {
+            return (count && count.config_count > 0);
+        })
+        .catch(console.error);
+
+    if (!value) {
+        await client.db
+            .deleteFrom('configs')
+            .where('guild_id', '=', guild.id)
+            .where('option', '=', option)
+            .execute()
+            .catch(console.error);
+    } else if (existingConfig) {
+        await client.db
+            .updateTable('configs')
+            .set({
+                value: value
+            })
+            .where('guild_id', '=', guild.id)
+            .where('option', '=', option)
+            .execute()
+            .catch(console.error);
+    } else {
+        await client.db
+            .insertInto('configs')
+            .values({
+                guild_id: guild.id,
+                option: option,
+                value: value
+            })
+            .execute()
+            .catch(console.error);
+    }
+
+    await client.refreshConfig()
+        .then(async () => {
+            const embed = new EmbedBuilder()
+                .setColor('Red')
+                .setTitle('Config Reloaded')
+                .setDescription(`The guild's configuration has been updated and the bot's configuration has been reloaded.`)
+                .setTimestamp()
+                .setFooter({ text: `Version ${process.env.version}`})
+                .addFields(
+                    {
+                        name: '⚙️ Option',
+                        value: codeBlock(option)
+                    },
+                    {
+                        name: '🔮 Value',
+                        value: codeBlock(value ? value : 'Reset to default')
+                    }
+                );
+
+            await interaction.editReply({
+                embeds: [embed]
+            });
+        });
+
+    return;
+}
 
 export default configCommand;
