@@ -30,9 +30,9 @@ const uhOhChannelDelete: Utility = {
                 const guild = channel.guild;
 
                 const role = guild.roles.cache.find((role) => {
-                    return (role.name === guild.client.getConfig('moderatedIsolationRole'))
+                    return (role.name === guild.client.getConfig('moderatedIsolationRole', guild.id))
                 });
-                if (!role) return console.log(`${guild.name} is missing role by the name of (${guild.client.getConfig('moderatedIsolationRole')}), skipping isolation`);
+                if (!role) return console.log(`${guild.name} is missing role by the name of (${guild.client.getConfig('moderatedIsolationRole', guild.id)}), skipping isolation`);
 
                 member?.roles
                     .remove(role.id)
