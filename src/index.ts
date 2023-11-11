@@ -114,7 +114,7 @@ client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: 
     if (!option) return null;
 
     const configOption = config?.get(option)
-    return configOption ? configOption : storedConfig['GLOBAL']?.get(option)
+    return configOption ? configOption : storedConfig['GLOBAL'].get(option)
 }
 
 // #endregion Bot settings logic
