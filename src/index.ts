@@ -97,9 +97,10 @@ await client.refreshConfig()
  */
 client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: string): any {
     // If no parameters are given return global config
-    if (!option && !guild) return globalConfig;
+    if (!option && !guild) return storedConfig['GLOBAL'];
 
     const config = storedConfig[(guild ? guild : 'GLOBAL')]
+    // If guild does not have a stored config return global config
     if (!option && guild && !config) return storedConfig['GLOBAL'];
 
     // If no option is given but guild is return the guild's config merged with the global config
@@ -113,6 +114,7 @@ client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: 
             )
         : storedConfig['GLOBAL'];
 
+    // We need an option at this point, return if we don't have one
     if (!option) return;
 
     const configOption = config?.get(option)
