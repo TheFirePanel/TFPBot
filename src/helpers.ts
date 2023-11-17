@@ -64,7 +64,7 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
         if (!guild) return;
 
         // Get data and create a constant for easy readability
-        const { embed, title, color, attachments } = data
+        const { embed, title, color, attachments } = data;
         // Ternary creates a new embed object if not supplied initially
         const embedToSend = (embed ? embed : new EmbedBuilder())
             .setColor(color || 'Red')
@@ -72,8 +72,9 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
             .setTimestamp()
             .setFooter({ text: `Version ${process.env.version}`});
 
+        const channelName = guild.client.getConfig('botLogsChannel', guild.id);
         const logChannel = guild.channels.cache.find((channel) => {
-            return (channel.name === guild.client.getConfig('botLogsChannel', guild.id) );
+            return (channel.name === channelName);
         });
         if (!logChannel || !logChannel.isTextBased()) return;
 
@@ -81,7 +82,7 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
         const sendOptions: MessageCreateOptions = {
             embeds: [embedToSend]
         }
-        if (attachments) sendOptions.files = attachments
+        if (attachments) sendOptions.files = attachments;
         
         logChannel.send(sendOptions);
 }

@@ -74,9 +74,9 @@ async function runWatcher(client: Client) {
                     .where("channel_id", "=", channel.channel_id)
                     .execute();
 
-                announceVideo(client, channel.guild_id, latestVideo)
+                announceVideo(client, channel.guild_id, latestVideo);
             }
-        }, index * 5000)
+        }, index * 5000);
     });
 }
 
@@ -118,10 +118,12 @@ async function getLatestVideo(channelId: string): Promise<LatestVideo | null> {
 }
 
 async function announceVideo(client: Client, guildId: string, latestVideo: LatestVideo) {
+    const channelName = client.getConfig('youtubeWatcherChannel', guildId);
+    
     await client.guilds.fetch(guildId)
         .then(async (guild) => {
             return guild.channels.cache.find((channel) => {
-                return channel.name === client.getConfig('youtubeWatcherChannel', guild.id);
+                return (channel.name === channelName);
             })
         })
         .then((channel) => {
@@ -129,7 +131,7 @@ async function announceVideo(client: Client, guildId: string, latestVideo: Lates
                 .send(latestVideo.link)
                 .catch((err) => { console.error(err) })
         })
-        .catch(() => {})
+        .catch(() => {});
 }
 
 export default youtubeWatcher;
