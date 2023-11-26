@@ -53,7 +53,7 @@ const youtubeWatcherCommand: Command = {
 
         switch(subCommand) {
             case 'add':
-                client.db
+                await client.db
                     .insertInto('youtube_channels')
                     .values({
                         channel_id: channelId,
@@ -70,7 +70,7 @@ const youtubeWatcherCommand: Command = {
 
                 break;
             case 'remove':
-                client.db
+                await client.db
                     .deleteFrom('youtube_channels')
                     .where('channel_id', '=', channelId)
                     .execute()                    
