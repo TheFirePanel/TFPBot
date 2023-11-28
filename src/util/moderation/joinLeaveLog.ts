@@ -19,8 +19,9 @@ const messageDeletionLog: Utility = {
         if (!member) return;
         const { guild } = member;
 
+        const channelName = guild.client.getConfig('joinLeaveChannel', guild.id);
         const logChannel = member.guild.channels.cache.find((channel) => {
-            return (channel.name === guild.client.getConfig('joinLeaveChannel', guild.id) );
+            return (channel.name === channelName);
         });
         if (!logChannel || !logChannel.isTextBased()) return;
 

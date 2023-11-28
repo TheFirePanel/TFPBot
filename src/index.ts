@@ -3,7 +3,7 @@ import { config as dotenv } from 'dotenv';
 dotenv();
 
 // This is automatically updated when npm version is ran successfully
-process.env.version = '1.4.0';
+process.env.version = '1.4.1';
 
 // Default imports
 import {
@@ -95,28 +95,28 @@ await client.refreshConfig()
  * @param option The config option to grab, provide none for all
  * @param guild The guild to get the configuration for
  */
-/* eslint @typescript-eslint/no-explicit-any: "off" 
-    --
-    Return types defined in type file, does not use any with overloads
-*/
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: string): any {
     // If no parameters are given return global config
-    if (!option && !guild) return globalConfig;
+    if (!option && !guild) return storedConfig['GLOBAL'];
 
     const config = storedConfig[(guild ? guild : 'GLOBAL')];
+    // If guild does not have a stored config return global config
     if (!option && guild && !config) return storedConfig['GLOBAL'];
-    if (!config) return;
 
     // If no option is given but guild is return the guild's config merged with the global config
-    if (!option && guild) return config
-        .merge(
-            storedConfig['GLOBAL'],
-            _ => ({ keep: false }),
-            y => ({ keep: true, value: y }),
-            (x, _) => ({ keep: true, value: x })
-        );
+    if (!option && guild) return config 
+        ? config
+            .merge(
+                storedConfig['GLOBAL'],
+                _ => ({ keep: false }),
+                y => ({ keep: true, value: y }),
+                (x, _) => ({ keep: true, value: x })
+            )
+        : storedConfig['GLOBAL'];
 
-    if (!option) return null;
+    // We need an option at this point, return if we don't have one
+    if (!option) return;
 
     const configOption = config?.get(option);
     return configOption ? configOption : storedConfig['GLOBAL'].get(option);

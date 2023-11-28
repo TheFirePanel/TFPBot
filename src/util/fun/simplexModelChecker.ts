@@ -19,13 +19,14 @@ const simplexModelChecker: Utility = {
         devices: {},
     },
     async execute(client: Client) {
-        const categories: string[]  = await axios.get(`${githubRepo}/categories.json`)
+        const categories: string[] = await axios.get(`${githubRepo}/categories.json`)
             .then((res) => {
                 return res.data.categories;
             })
+            .catch(console.error);
 
         if (!categories) {
-            return console.log('No categories for SimplexModelChecker found, returning.')
+            return console.log('No categories for SimplexModelChecker found, returning.');
         }
 
         const cache = client.util.get(this.name)?.cache;
@@ -35,7 +36,7 @@ const simplexModelChecker: Utility = {
             const devices: string[] = await axios.get(`${githubRepo}/${category}.json`)
                 .then((res) => {
                     return res.data.devices
-                })
+                });
 
             cache.devices[category] = devices;
             cache.autoDevices.push(...devices);
