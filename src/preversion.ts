@@ -7,6 +7,6 @@ const updatedContents = fileContents.replace(/process\.env\.version\s*=\s*'*(\d+
     return `process.env.version = '${process.env.npm_new_version}'`;
 });
 
-writeFileSync(filePath, updatedContents)
+writeFileSync(filePath, updatedContents);
 
-console.log(`Updated value in index.ts to version ${process.env.npm_new_version}`)
+console.log(`Updated value in index.ts to version ${process.env.npm_new_version}`);

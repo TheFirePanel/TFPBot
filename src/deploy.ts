@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { getFiles } from './helpers.js';
 
 const commands = [];
-const commandFiles = getFiles('commands')
+const commandFiles = getFiles('commands');
 
 for (const file of commandFiles) {
     const command = await import(pathToFileURL(file).href)
@@ -23,34 +23,27 @@ for (const file of commandFiles) {
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN!);
 
 (async () => {
-    const arg = process.argv[2]
-
-    if (!arg || !(['true', 'false'].indexOf(arg) >= 0)) { 
-        console.log(color.red('You must provide "true"(global) or "false"(local) for the deploy script!'))
-        process.exit()
-    }
-
     try {
         console.log(color.magenta(`Started refreshing ${commands.length} application (/) commands.`));
 
-        let data: unknown;
-        if (arg === 'true') {
-            data = await rest.put(
-                Routes.applicationCommands(process.env.CLIENT_ID!),
-                { body: commands },
-            );
+        switch (process.env.NODE_ENV) {
+            case 'production':
+                await rest.put(
+                    Routes.applicationCommands(process.env.CLIENT_ID!),
+                    { body: commands },
+                );
 
-            console.log(color.bgYellow(`Deploy script set to global deploy, provide false argument for local deployment!`))
-        } else {
-            data = await rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!),
-                { body: commands },
-            );
+                console.log(color.bgGreen(`Node ENV set to production, deployed application commands globally.`));
+                break;
+            case 'development':
+                await rest.put(
+                    Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!),
+                    { body: commands },
+                );
 
-            console.log(color.bgYellow(`Deploy script set to local deploy, provide true argument for global deployment!`))
+                console.log(color.bgGreen(`Node ENV set to development, deployed application commands to guild with ID of ${process.env.GUILD_ID}.`));
+                break;
         }
-
-        console.log(color.bgGreen(`Successfully reloaded ${data.length} application (/) commands.`));
     } catch (error) {
         console.error(error);
     }

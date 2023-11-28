@@ -37,7 +37,7 @@ export function getFiles(path: string, arrayOfFiles?: string[]): string[] {
 
             fileArray.push(filePath);
         }
-    })
+    });
 
     return fileArray;
 }
@@ -65,7 +65,7 @@ export function sendBotLog(guild: Guild, data: BotLogOptions['data'] = {
         if (!guild) return;
 
         // Get data and create a constant for easy readability
-        const { embed, title, color, attachments } = data
+        const { embed, title, color, attachments } = data;
         // Ternary creates a new embed object if not supplied initially
         const embedToSend = (embed ? embed : new EmbedBuilder())
             .setColor(color || 'Red')
@@ -81,8 +81,8 @@ export function sendBotLog(guild: Guild, data: BotLogOptions['data'] = {
         // Generate send options
         const sendOptions: MessageCreateOptions = {
             embeds: [embedToSend]
-        }
-        if (attachments) sendOptions.files = attachments
+        };
+        if (attachments) sendOptions.files = attachments;
         
         logChannel.send(sendOptions);
 }
@@ -105,11 +105,11 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
     for (;;) {
         const options: FetchMessagesOptions = {
             limit: 100
-        }
+        };
         if (last_id) options.before = last_id;
 
         const messages = await channel.messages.fetch(options)
-            .catch(console.error)
+            .catch(console.error);
         if (!messages) break;
         
         archivedMessages.push(...messages.values());
@@ -126,7 +126,7 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
 
         if (formattedData.length <= 0) return null;
 
-        return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${attachment.name}.txt` })
+        return new AttachmentBuilder(Buffer.from(formattedData, 'utf-8'), { name: `${attachment.name}.txt` });
     }
     return archivedMessages;
 }
@@ -141,10 +141,10 @@ export function chunkEntries<T>(array: T[], chunkSize: number): T[][] {
 
     for (let i = 0; i < array.length; i += chunkSize) {
         const chunk = array.slice(i, i + chunkSize);
-        chunks.push(chunk)
+        chunks.push(chunk);
     }
 
-    return chunks
+    return chunks;
 }
 
 export default {};

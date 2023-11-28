@@ -8,6 +8,7 @@ module.exports = {
 	plugins: ['@typescript-eslint'],
 	root: true,
 	rules: {
+		"semi": "error",
 		"no-useless-escape": "off",
 		"no-unused-vars": "off",
 		"@typescript-eslint/no-unused-vars": ["error", { 
