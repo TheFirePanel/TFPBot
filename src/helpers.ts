@@ -5,10 +5,10 @@ import {
     AttachmentBuilder,
     EmbedBuilder,
     type MessageCreateOptions,
+    type Guild,
     type GuildBasedChannel,
     type Message,
-    type FetchMessagesOptions,
-    type Guild
+    type FetchMessagesOptions
 } from 'discord.js';
 import { BotLogOptions } from './typings/index.js';
 
