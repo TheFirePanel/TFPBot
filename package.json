@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint ./src/**.ts",
     "build": "tsc",
     "watch": "nodemon",
     "deploy": "ts-node src/deploy.ts",
@@ -14,7 +14,9 @@
   "author": "The Fire Panel, LLC",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.49.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
     "kysely-codegen": "^0.10.1",
     "nodemon": "^3.0.1",
     "typescript": "^5.2.2"

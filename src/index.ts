@@ -95,6 +95,10 @@ await client.refreshConfig()
  * @param option The config option to grab, provide none for all
  * @param guild The guild to get the configuration for
  */
+/* eslint @typescript-eslint/no-explicit-any: "off" 
+    --
+    Return types defined in type file, does not use any with overloads
+*/
 client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: string): any {
     // If no parameters are given return global config
     if (!option && !guild) return globalConfig;
@@ -145,7 +149,7 @@ const utilFiles = getFiles('util');
 
 for (const file of utilFiles) {
     const util = await import(pathToFileURL(file).href)
-        .then((util) => util.default);;
+        .then((util) => util.default);
 
     if (!util) { continue; }
     

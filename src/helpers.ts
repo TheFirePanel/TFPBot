@@ -7,7 +7,8 @@ import {
     type MessageCreateOptions,
     type GuildBasedChannel,
     type Message,
-    type FetchMessagesOptions
+    type FetchMessagesOptions,
+    type Guild
 } from 'discord.js';
 import { BotLogOptions } from './typings/index.js';
 
@@ -57,7 +58,7 @@ export function getFileName(path: string): string {
  * @param data Data of what to send in the log message
  * @returns void
  */
-export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['data'] = {
+export function sendBotLog(guild: Guild, data: BotLogOptions['data'] = {
         title: 'Bot Log',
         color: 'Red'
     }): void {
@@ -93,6 +94,7 @@ export function sendBotLog(guild: BotLogOptions['guild'], data: BotLogOptions['d
  */
 export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number, attachment?: { name: string } }): Promise<AttachmentBuilder>;
 export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number }): Promise<Message[]>;
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 export async function archiveMessages(channel: GuildBasedChannel, options: any) {
     if (!channel.isTextBased()) return;
     const { attachment, limit } = options;
@@ -100,7 +102,7 @@ export async function archiveMessages(channel: GuildBasedChannel, options: any) 
     const archivedMessages: Message[] = [];
     let last_id;
 
-    while (true) {
+    for (;;) {
         const options: FetchMessagesOptions = {
             limit: 100
         }

@@ -6,7 +6,7 @@ import color from 'chalk';
 import { pathToFileURL } from 'node:url';
 import { getFiles } from './helpers.js';
 
-const commands: any = [];
+const commands = [];
 const commandFiles = getFiles('commands')
 
 for (const file of commandFiles) {
@@ -33,7 +33,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN!);
     try {
         console.log(color.magenta(`Started refreshing ${commands.length} application (/) commands.`));
 
-        let data: any;
+        let data: unknown;
         if (arg === 'true') {
             data = await rest.put(
                 Routes.applicationCommands(process.env.CLIENT_ID!),
