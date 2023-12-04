@@ -38,3 +38,6 @@ jobs:
   build-docker:
     needs: build-test
     uses: ./.github/workflows/build-docker.yaml
+    permissions:
+      contents: read
+      packages: write
