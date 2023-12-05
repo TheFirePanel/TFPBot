@@ -6,7 +6,7 @@ import {
     type ChatInputCommandInteraction,
 } from 'discord.js';
 import { type Command } from '../../typings/index.js';
-import { chunkEntries } from '../../helpers.js';
+import { embedEntries } from '../../helpers.js';
 
 const configCommand: Command = {
     data: new SlashCommandBuilder()
@@ -83,33 +83,15 @@ async function listConfig(interaction: ChatInputCommandInteraction) {
     const configArray = client
         .getConfig(null, guild.id)
         .map((value, option) => ({ option, value }));
-    const configChunks = chunkEntries(configArray, 25);
-    
-    const embeds: EmbedBuilder[] = [];
 
-    configChunks.forEach((chunk, i) => {
-        const page = i + 1;
-        const embed = new EmbedBuilder()
-            .setColor('Red')
-            .setTimestamp()
-            .setFooter({
-                text: `Page ${page}-${configChunks.length} • Version ${process.env.version}`
-            });
-
-        if (page === 1) {
-            embed
-                .setTitle(`${guild.name} Bot Config`)
-                .setDescription('All values are current for this specific guild, to change a value use the command `/config set`.');
-        }
-        
-        chunk.forEach((config) => {
-            embed.addFields({
-                name: `⚙️ ${config.option}`,
-                value: codeBlock(config.value)
-            });
+    const embeds = embedEntries(configArray, {
+        title: `${guild.name} Bot Config`,
+        description: 'All values are current for this specific guild, to change a value use the command `/config set`.'
+    }, (embed, config) => {
+        embed.addFields({
+            name: `⚙️ ${config.option}`,
+            value: codeBlock(config.value)
         });
-
-        embeds.push(embed);
     });
 
     await interaction.editReply({

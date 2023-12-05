@@ -103,7 +103,6 @@ export function sendBotLog(guild: Guild, data: {
  */
 export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number, attachment?: { name: string } }): Promise<AttachmentBuilder>;
 export async function archiveMessages(channel: GuildBasedChannel, options: { limit?: number }): Promise<Message[]>;
-/* eslint @typescript-eslint/no-explicit-any: "off" */
 export async function archiveMessages(channel: GuildBasedChannel, options: any) {
     if (!channel.isTextBased()) return;
     const { attachment, limit } = options;
@@ -156,22 +155,43 @@ export function chunkEntries<T>(array: T[], chunkSize: number): T[][] {
     return chunks;
 }
 
-export function embedEntries<T>(array: T[], options: any): void {
-    const { chunkSize } = options;
+/**
+ * Divides up supplied array and sends the data into multiple configurable embeded objects
+ * @param array Given array to split up
+ * @param forEach The function to run on each individual chunk
+ */
+export function embedEntries<T>(array: T[], options: {
+    title: string,
+    description?: string,
+    chunkSize?: number
+    color?: ColorResolvable
+}, forEach: (embed: EmbedBuilder, chunk: T) => void): EmbedBuilder[] {
+    const { title, description, chunkSize, color } = options;
     const chunks = chunkEntries(array, chunkSize || 25);
+
+    const embeds: EmbedBuilder[] = [];
 
     chunks.forEach((chunk, i) => {
         const page = i + 1;
         const embed = new EmbedBuilder()
-            .setColor('Red')
+            .setColor(color || 'Red')
             .setTimestamp()
             .setFooter({
                 text: `Page ${page}-${chunks.length} • Version ${process.env.version}`
             });
+            
+        if (page === 1) {
+            embed
+                .setTitle(title)
+                .setDescription(description || null);
+        }
 
-        console.log(chunk, embed);
+        chunk.forEach((chunk) => forEach(embed, chunk));
+
+        embeds.push(embed);
     });
-    console.log(chunks);
+    
+    return embeds;
 }
 
 export default {};
