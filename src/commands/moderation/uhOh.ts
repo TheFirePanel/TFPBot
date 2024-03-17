@@ -84,7 +84,7 @@ const uhOhCommand: Command = {
     }
 };
 
-async function sendToModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
+export async function sendToModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
     const { user, member } = userOption;
     if (!user || !member ) return;
     
@@ -194,7 +194,7 @@ async function sendToModerated(guild: Guild, userOption: CommandInteractionOptio
         .catch(console.error);
 }
 
-async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
+export async function releaseFromModerated(guild: Guild, userOption: CommandInteractionOption, interaction: ChatInputCommandInteraction) {
     const { member, user } = userOption;
     if (!user) return;
 
