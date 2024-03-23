@@ -3,6 +3,7 @@ import {
     EmbedBuilder,
     SlashCommandBuilder,
     type ChatInputCommandInteraction,
+    type Embed,
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
 import { randomUUID } from 'node:crypto';
@@ -41,7 +42,6 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
 
     // Create the mail id before we send it to the moderators
     const mailId = randomUUID();
-
     const embed = new EmbedBuilder()
         .setColor('Red')
         .setTimestamp()
@@ -121,6 +121,25 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
                 .setDescription(`Modmail sent, please check your direct messages for more information.`)
         ]
     });
+}
+
+/**
+ * To limit having to rely on database message ids we can extract the mailId in the footer of our embeds.
+ * It is recommeded to make sure this embed is coming from the client user account.
+ * 
+ * Grabbing the ID from the embed allows all previous embeds to be used for the conversation,
+ * storing multiple ids or just changing one can cause multiple edge cases.
+ * @param embed The embeded object to extract the mailId from
+ * @returns string
+ */
+export function extractMailId(embed: Embed): string | null | undefined {
+    if (!embed.footer || !embed.footer.text) return null;
+
+    // UUID Regex
+    const uuidPattern: RegExp = /[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/;
+    const extractedId: string | undefined = embed.footer?.text.match(uuidPattern)?.[0];
+
+    return extractedId;
 }
 
 export default modmailCommand;
