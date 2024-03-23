@@ -19,6 +19,7 @@ import color from 'chalk';
 // Create client
 const client: Client = new Client({ 
     intents: [
+        GatewayIntentBits.DirectMessages,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
@@ -50,6 +51,9 @@ export const globalConfig = {
     'botLogsChannel': 'bot-logs', // sendBotLog
     'joinLeaveChannel': 'join-leave', // joinLeaveLog
     'youtubeWatcherChannel': 'new-videos', // youtubeWatcher
+
+    // Moderation
+    'modChatChannel': 'mod-chat', // modmail
 
     // uhOh
     'moderatedCategory': 'Moderated Channels',

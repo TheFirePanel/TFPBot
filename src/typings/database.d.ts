@@ -14,21 +14,32 @@ export interface Configs {
 }
 
 export interface ModChannels {
+  added_by: Generated<string | null>;
   channel_id: string;
   guild_id: string;
   user_id: Generated<string | null>;
-  added_by: Generated<string | null>;
+}
+
+export interface Modmail {
+  created_at: Generated<Date>;
+  guild_id: string;
+  id: unknown;
+  message: Generated<string | null>;
+  mod_message_id: string;
+  user_id: Generated<string | null>;
+  user_message_id: Generated<string | null>;
 }
 
 export interface YoutubeChannels {
+  added_by: Generated<string | null>;
   channel_id: string;
   guild_id: string;
   latest_video: Generated<string | null>;
-  added_by: Generated<string | null>;
 }
 
 export interface DB {
   configs: Configs;
   mod_channels: ModChannels;
+  modmail: Modmail;
   youtube_channels: YoutubeChannels;
 }
