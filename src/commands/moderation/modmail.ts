@@ -76,9 +76,10 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
         ]
     });
 
-    const modMessage = await modChannel.send({
+    await modChannel.send({
         embeds: [
             new EmbedBuilder(embed)
+                .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() })
                 .setTitle(`📬 Modmail from ${user.displayName}`)
                 .addFields(
                     {
@@ -102,9 +103,8 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
                 id: mailId,
                 user_id: user.id,
                 guild_id: guild.id,
+                dm_channel_id: userMessage.channel.id,
                 message: message,
-                mod_message_id: modMessage.id,
-                user_message_id: userMessage.id
             })
             .execute();
     } 

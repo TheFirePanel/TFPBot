@@ -22,12 +22,11 @@ export interface ModChannels {
 
 export interface Modmail {
   created_at: Generated<Date>;
+  dm_channel_id: string;
   guild_id: string;
   id: unknown;
   message: Generated<string | null>;
-  mod_message_id: string;
   user_id: Generated<string | null>;
-  user_message_id: Generated<string | null>;
 }
 
 export interface YoutubeChannels {

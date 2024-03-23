@@ -10,25 +10,23 @@ import type { Utility } from '../../typings/index.js';
 import { extractMailId } from '../../commands/moderation/modmail.js';
 
 /**
- * @name modmailModChat
+ * @name modmailUserChat
  * @event MessageCreate
  * @author DrPepperG
- * @desc This utility runs on message create, any response in mod chat will send mail to the respective user stored in the database.
+ * @desc This utility runs on message create, any response in dms will send message to mod chat.
  */
 const modmailModChat: Utility = {
-    name: 'modmailModChat',
+    name: 'modmailUserChat',
     events: Events.MessageCreate,
     async execute(message: PartialMessage | Message) {
-        if (!message || !message.guild) return;
-        if (message.channel.isDMBased() || message.type !== MessageType.Reply) return;
+        if (!message) return;
+        if (!message.channel.isDMBased() || message.type !== MessageType.Reply) return;
 
-        const { client, guild, channel } = message;
-        if (client.getConfig('modChatChannel', guild.id) !== channel.name) return; // Only check mod chat
-
+        const { client, channel, author } = message;
         // Make sure it's just a reply to our user
         if (message.mentions.repliedUser?.id !== client.user.id) return;
         if (!message.reference?.messageId) return;
-        
+
         // Extract the mailId from the embed
         const mailId = await channel.messages.fetch(message.reference?.messageId)
             .then((message) => {
@@ -44,13 +42,26 @@ const modmailModChat: Utility = {
             .selectFrom('modmail')
             .selectAll()
             .where('id', '=', mailId)
-            .where('guild_id', '=', guild.id)
+            .where('dm_channel_id', '=', channel.id)
             .executeTakeFirst()
             .then((res) => {
                 return res;
             })
             .catch(() => {});
         if (!modMail || !modMail.user_id) return; // Make error
+
+        const guild = await client.guilds.fetch(modMail.guild_id)
+            .then((guild) => {
+                return guild;
+            });
+        if (!guild) return;
+
+        // Get configured mod channel
+        const channelName = guild.client.getConfig('modChatChannel', guild.id);
+        const modChannel = guild.channels.cache.find((channel) => {
+            return (channel.name === channelName);
+        });
+        if (!modChannel || !modChannel.isTextBased()) return;
 
         const embed = new EmbedBuilder()
             .setColor('Red')
@@ -61,22 +72,26 @@ const modmailModChat: Utility = {
             .setTitle(`📫 ${guild.name} Modmail Response`)
             .toJSON();
 
-        await guild.members.fetch(modMail.user_id)
-            .then((member) => {
-                member.send({
-                    embeds: [
-                        new EmbedBuilder(embed)
-                            .setDescription(`Response from **${guild.name}** moderation team, reply to this embed to send any additional responses.`)
-                            .addFields(
-                                {
-                                    name: '🗒️ Message',
-                                    value: codeBlock(((message.content) || 'No message provided???'))
-                                }
-                            )
-                    ]
-                });
-            });
+        // Send message to mod-chat
+        modChannel.send({
+            embeds: [
+                new EmbedBuilder(embed)
+                    .setAuthor({ name: author.displayName, iconURL: author.displayAvatarURL() })
+                    .addFields(
+                        {
+                            name: '🙍 User',
+                            value: `<@${author.id}>`,
+                            inline: true
+                        },
+                        {
+                            name: '🗒️ Message',
+                            value: codeBlock((message.content || 'No message provided???'))
+                        }
+                    )
+            ]
+        });
 
+        // Tell the user we've sent the message
         message.react('📨');
     }
 };
