@@ -50,6 +50,7 @@ const modmailModChat: Utility = {
             .catch(() => {});
         if (!modMail || !modMail.user_id) return; // Make error
 
+        // Get stored guild information
         const guild = await client.guilds.fetch(modMail.guild_id)
             .then((guild) => {
                 return guild;
@@ -64,7 +65,7 @@ const modmailModChat: Utility = {
         if (!modChannel || !modChannel.isTextBased()) return;
 
         const embed = new EmbedBuilder()
-            .setColor('Red')
+            .setColor('Blue')
             .setTimestamp()
             .setFooter({
                 text: `Mail ID ${mailId} • Version ${process.env.version}`
@@ -73,7 +74,7 @@ const modmailModChat: Utility = {
             .toJSON();
 
         // Send message to mod-chat
-        modChannel.send({
+        return await modChannel.send({
             embeds: [
                 new EmbedBuilder(embed)
                     .setAuthor({ name: author.displayName, iconURL: author.displayAvatarURL() })
@@ -84,15 +85,26 @@ const modmailModChat: Utility = {
                             inline: true
                         },
                         {
-                            name: '🗒️ Message',
+                            name: '🕔 Originally Created (UTC)',
+                            value: `<t:${modMail.created_at.getTime() / 1000}>`,
+                            inline: true
+                        },
+                        {
+                            name: '📜 Original Message',
+                            value: codeBlock(modMail.message || 'No message provided???')
+                        },
+                        {
+                            name: '🗒️ Response Message',
                             value: codeBlock((message.content || 'No message provided???'))
                         }
                     )
             ]
+        }).then(() => {
+            message.react('📨');
+        })
+        .catch(() => {
+            message.react('❌');
         });
-
-        // Tell the user we've sent the message
-        message.react('📨');
     }
 };
 

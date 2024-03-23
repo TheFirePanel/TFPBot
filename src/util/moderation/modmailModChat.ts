@@ -53,7 +53,7 @@ const modmailModChat: Utility = {
         if (!modMail || !modMail.user_id) return; // Make error
 
         const embed = new EmbedBuilder()
-            .setColor('Red')
+            .setColor('Green')
             .setTimestamp()
             .setFooter({
                 text: `Mail ID ${mailId} • Version ${process.env.version}`
@@ -61,7 +61,7 @@ const modmailModChat: Utility = {
             .setTitle(`📫 ${guild.name} Modmail Response`)
             .toJSON();
 
-        await guild.members.fetch(modMail.user_id)
+        return await guild.members.fetch(modMail.user_id)
             .then((member) => {
                 member.send({
                     embeds: [
@@ -70,14 +70,18 @@ const modmailModChat: Utility = {
                             .addFields(
                                 {
                                     name: '🗒️ Message',
-                                    value: codeBlock(((message.content) || 'No message provided???'))
+                                    value: codeBlock(message.content || 'No message provided???')
                                 }
                             )
                     ]
+                })
+                .then(() => {
+                    message.react('📨');
+                })
+                .catch(() => {
+                    message.react('❌');
                 });
             });
-
-        message.react('📨');
     }
 };
 

@@ -21,11 +21,10 @@ const modmailCommand: Command = {
         .setDescription('Sends a message to the mod team.'),
     async execute(interaction) {
         if (!interaction.guild) return;
-
         interaction.deferReply({ ephemeral: true });
 
         const message = interaction.options.get('message', true).value as string;
-        createModMail(message, interaction);
+        return createModMail(message, interaction);
     }
 };
 
@@ -67,8 +66,7 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
                 )
         ]
     }).catch(() => {});
-    if (!userMessage) return interaction.reply({
-        ephemeral: true,
+    if (!userMessage) return interaction.editReply({
         embeds: [
             new EmbedBuilder(embed)
                 .setTitle(`😔 Unable to send message`)
@@ -96,26 +94,24 @@ async function createModMail(message: string, interaction: ChatInputCommandInter
     });
 
     // Attempt to add to database
-    try {
-        await client.db
-            .insertInto('modmail')
-            .values({
-                id: mailId,
-                user_id: user.id,
-                guild_id: guild.id,
-                dm_channel_id: userMessage.channel.id,
-                message: message,
-            })
-            .execute();
-    } 
-    catch(err) {
-        interaction.editReply({
-            content: `An error has occured, please contact a bot administrator for help. \n **${err}**`,
+    await client.db
+        .insertInto('modmail')
+        .values({
+            id: mailId,
+            user_id: user.id,
+            guild_id: guild.id,
+            dm_channel_id: userMessage.channel.id,
+            message: message,
+        })
+        .execute()
+        .catch((err) => {
+            interaction.editReply({
+                content: `A database error has occured, please contact a bot administrator for help. \n **${err}**`,
+            });
+            return console.error(err);
         });
-        return console.error(err);
-    }
 
-    interaction.editReply({
+    return interaction.editReply({
         embeds: [
             new EmbedBuilder(embed)
                 .setDescription(`Modmail sent, please check your direct messages for more information.`)
