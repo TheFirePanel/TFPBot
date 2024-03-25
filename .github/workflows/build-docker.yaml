@@ -25,7 +25,7 @@ jobs:
             echo "latest=latest" >> $GITHUB_OUTPUT
           else
             echo "version=$VER-dev" >> $GITHUB_OUTPUT
-            echo "latest=${{ git rev-parse --short HEAD }}" >> $GITHUB_OUTPUT
+            echo "latest=$( git rev-parse --short HEAD )" >> $GITHUB_OUTPUT
           fi
       - name: Extract metadata (tags, labels) for Docker
         id: meta
