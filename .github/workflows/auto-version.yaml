@@ -60,6 +60,7 @@ jobs:
           if ${{ inputs.versionOverride != '' }}; then
             jq '.version = "${{ inputs.versionOverride }}"' package.json > package.json
           else
+            npm ci
             npm version ${{ inputs.versionType }}
           fi
       - name: Get New Version
