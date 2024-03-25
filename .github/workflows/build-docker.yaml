@@ -18,7 +18,7 @@ jobs:
       - name: Get Semantic Version
         id: getVersion
         run: |
-          export VER=$(yq '.version' package.json)
+          export VER=$(jq -r '.version' package.json)
 
           if ${{ contains(github.ref, 'main') }}; then
             echo "version=$VER" >> $GITHUB_OUTPUT
@@ -48,6 +48,7 @@ jobs:
 
   auto-version:
     if: github.ref == 'refs/heads/feature/97'
+    needs: publish-docker
     uses: ./.github/workflows/auto-version.yaml
     secrets: inherit
     permissions:

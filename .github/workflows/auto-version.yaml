@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Get Current Version
         id: getVersion
-        run: echo "version=$(yq '.version' package.json)" >> $GITHUB_OUTPUT
+        run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
       - name: Create Tag
         uses: actions/github-script@v7
         with:
@@ -43,7 +43,7 @@ jobs:
               sha: context.sha
             })
 
-  version-override:
+  change-version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -58,13 +58,13 @@ jobs:
       - name: Set Version
         run: |
           if ${{ inputs.versionOverride != '' }}; then
-            yq e -i '.version = "${{ inputs.versionOverride }}"' package.json
+            jq '.version = "${{ inputs.versionOverride }}"' package.json > package.json
           else
             npm version ${{ inputs.versionType }}
           fi
       - name: Get New Version
         id: getVersion
-        run: echo "version=$(yq '.version' package.json)" >> $GITHUB_OUTPUT
+        run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
       - name: Commit changes to Git
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
