@@ -48,5 +48,5 @@ jobs:
 
   auto-version:
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/auto-verion.yaml
+    uses: ./.github/auto-verion.yaml@${{ context.sha }}
     secrets: inherit
