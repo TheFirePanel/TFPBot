@@ -47,6 +47,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   auto-version:
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/auto-verion.yaml@${{ context.sha }}
+    if: github.ref == 'refs/heads/feature/97'
+    uses: ./.github/workflows/auto-version.yaml
     secrets: inherit
+    permissions:
+      contents: write
