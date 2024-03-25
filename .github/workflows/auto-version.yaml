@@ -1,0 +1,84 @@
+name: Auto Version
+on:
+  workflow_dispatch:
+    inputs:
+      versionOverride:
+        type: string
+        description: Enter to ignore auto versioning, and instead just explicitly set a version number.
+        required: false
+      versionType:
+        type: choice
+        description: Which version should we bump (ignored if versionOverride is set)
+        options:
+          - patch
+          - minor
+          - major
+  workflow_call:
+    inputs:
+      versionType:
+        type: string
+        description: Which version should we bump (ignored if versionOverride is set)
+        required: false
+        default: patch
+permissions:
+  contents: write
+jobs:
+  tag-current-version:
+    runs-on: ubuntu-latest
+    #if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Get Current Version
+        id: getVersion
+        run: echo "version=$(yq '.version' package.json)" >> $GITHUB_OUTPUT
+      - name: Create Tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.getVersion.outputs.version }}',
+              sha: context.sha
+            })
+
+  version-override:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Configure NodeJS
+        if: inputs.versionOverride == ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Set Version
+        run: |
+          if ${{ inputs.versionOverride != '' }}; then
+            yq e -i '.version = "${{ inputs.versionOverride }}"' package.json
+          else
+            npm version ${{ inputs.versionType }}
+          fi
+      - name: Get New Version
+        id: getVersion
+        run: echo "version=$(yq '.version' package.json)" >> $GITHUB_OUTPUT
+      - name: Commit changes to Git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add package.json
+          git commit -m "Set version to ${{ steps.getVersion.outputs.version }}"
+          git push
+      - name: Send Discord Message with Versioning Status
+        uses: slackapi/slack-github-action@v1.25.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "text": "${{ github.event.repository.name }} - Set Version to ${{ steps.getVersion.outputs.version }}"
+            }
+      

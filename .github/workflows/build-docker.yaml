@@ -1,17 +1,12 @@
 name: Build Docker
-on: workflow_call
+on: workflow_dispatch
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 jobs:
-  build-test:
+  publish-docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Restore Cache
-        uses: actions/cache@v4
-        with:
-          path: ./*
-          key: ${{ github.sha }}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Log in to the Container registry
@@ -20,11 +15,29 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Semantic Version
+        id: getVersion
+        run: |
+          export VER=$(yq '.version' package.json)
+
+          if ${{ contains(github.ref, 'main') }}; then
+            echo "version=$VER" >> $GITHUB_OUTPUT
+            echo "latest=latest" >> $GITHUB_OUTPUT
+          else
+            echo "version=$VER-dev" >> $GITHUB_OUTPUT
+            echo "latest=${{ git rev-parse --short HEAD }}" >> $GITHUB_OUTPUT
+          fi
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags:
+            type=raw,value=${{ steps.getVersion.outputs.version }}
+            type=raw,value=${{ steps.getVersion.outputs.latest }}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -32,3 +45,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  auto-version:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/auto-verion.yaml
+    secrets: inherit

@@ -3,7 +3,7 @@ FROM    node:18-alpine as build-stage
 WORKDIR /build
 COPY    . .
 
-RUN     npm install
+RUN     npm ci
 RUN     npm run build
 
 FROM    node:18-alpine as production-stage

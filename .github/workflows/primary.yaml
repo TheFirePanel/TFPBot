@@ -3,6 +3,8 @@ on:
   push:
     paths-ignore:
       - README.md
+      - .github/CODEOWNERS
+      - .github/dependabot.yaml
   workflow_dispatch:
 jobs:
   build-test:
@@ -19,11 +21,6 @@ jobs:
           npm ci
           npm run lint
           npm run build
-      - name: Cache for Docker
-        uses: actions/cache@v4
-        with:
-          path: ./*
-          key: ${{ github.sha }}
       - name: Send Discord Message with Build Status
         if: always()
         uses: slackapi/slack-github-action@v1.25.0
@@ -34,10 +31,3 @@ jobs:
             {
               "text": "${{ github.event.repository.name }} - Build and Test Bot - ${{ job.status }}\nOn Branch: ${{ github.ref }}\nBy: ${{ github.event.head_commit.author.name }}"
             }
-
-  build-docker:
-    needs: build-test
-    uses: ./.github/workflows/build-docker.yaml
-    permissions:
-      contents: read
-      packages: write
