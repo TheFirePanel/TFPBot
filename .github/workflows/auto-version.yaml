@@ -55,10 +55,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+      - name: Configure Git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
       - name: Set Version
         run: |
           if ${{ inputs.versionOverride != '' }}; then
             jq '.version = "${{ inputs.versionOverride }}"' package.json > package.json
+            git add package.json
+            git commit -m "Set version to ${{ inputs.versionOverride }}"
           else
             npm ci
             npm version ${{ inputs.versionType }}
@@ -66,13 +72,8 @@ jobs:
       - name: Get New Version
         id: getVersion
         run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
-      - name: Commit changes to Git
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add package.json
-          git commit -m "Set version to ${{ steps.getVersion.outputs.version }}"
-          git push
+      - name: Push changes to Git
+        run: git push
       - name: Send Discord Message with Versioning Status
         uses: slackapi/slack-github-action@v1.25.0
         env:
