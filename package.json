@@ -17,7 +17,7 @@
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "eslint": "^8.57.0",
-    "kysely-codegen": "^0.14.1",
+    "kysely-codegen": "^0.14.2",
     "nodemon": "^3.1.0",
     "typescript": "^5.4.3"
   },
