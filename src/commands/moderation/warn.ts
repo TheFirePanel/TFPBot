@@ -1,6 +1,6 @@
 import {
-    //codeBlock,
-    //EmbedBuilder,
+    codeBlock,
+    EmbedBuilder,
     PermissionFlagsBits,
     SlashCommandBuilder,
     type ChatInputCommandInteraction,
@@ -8,7 +8,8 @@ import {
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
 //import { sendBotLog } from '../../helpers.js';
-//import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+import { sendBotLog } from '../../helpers.js';
 
 
 const warnCommand: Command = {
@@ -26,6 +27,10 @@ const warnCommand: Command = {
                     .setName('reason')
                     .setDescription('Reason for warning the user.')
                     .setRequired(true)
+                )
+                .addBooleanOption(option => option
+                    .setName('public')
+                    .setDescription('Whether to publicly display warning message to user.')
                 )
         )
         .addSubcommand(option => 
@@ -61,7 +66,7 @@ const warnCommand: Command = {
         if (!interaction.guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true })
             .catch(console.error);
 
-        await interaction.deferReply()
+        await interaction.deferReply({ ephemeral: true })
             .catch(console.error);
 
         switch(subCommand) {
@@ -69,10 +74,10 @@ const warnCommand: Command = {
                 await addWarning(interaction.guild, interaction);
                 break;
             case 'list':
-                await listWarnings(interaction.guild, interaction);
+                //await listWarnings(interaction.guild, interaction);
                 break;
             case 'remove':
-                await removeWarning(interaction.guild, interaction);
+                //await removeWarning(interaction.guild, interaction);
                 break;
         }
 
@@ -87,10 +92,82 @@ const warnCommand: Command = {
 
 async function addWarning(guild: Guild, interaction: ChatInputCommandInteraction) {
     const warnUser = interaction.options.get('user', true).user;
-    const warnReason = interaction.options.get('reason', true).value;
+    const warnReason = interaction.options.get('reason', true).value as string;
     if (!warnUser || !warnReason) return interaction.editReply(`Required values have not been supplied`);
 
-    console.log(guild, warnUser, warnReason);
+    const moderator = interaction.user;
+
+    const warnId = randomUUID();
+    await interaction.client.db
+        .insertInto('warnings')
+        .values({
+            id: warnId,
+            user_id: warnUser.id,
+            guild_id: guild.id,
+            mod_id: moderator.id,
+            reason: warnReason
+        })
+        .execute()
+        .catch((err) => {
+            interaction.editReply(err);
+        });
+
+    const displayWarning = interaction.options.get('public')?.value;
+    if (displayWarning) {
+        interaction.channel?.send({
+            content: `<@${warnUser.id}>`,
+            embeds: [
+                new EmbedBuilder()
+                    .setColor('Red')
+                    .setDescription(`
+                        You've recieved an official warning from **${guild.name}** moderation team.
+                        The reason supplied with the warn will be shown below.
+                        
+                        *If you believe this has been done in error please contact the moderation staff using **/modmail***
+                    `)
+                    .addFields(
+                        {
+                            name: '🗒️ Reason',
+                            value: codeBlock(warnReason),
+                            inline: true
+                        }
+                    )
+                    .setTimestamp()
+                    .setFooter({
+                        text: `Warn ID ${warnId} • Version ${process.env.version}`
+                    })
+                    .setTitle(`👮 ${guild.name} Official Warning`)
+            ]
+        });
+    }
+
+    sendBotLog(guild, {
+        title: 'Warning Given',
+        embed: new EmbedBuilder()
+            .setAuthor({ name: warnUser.displayName, iconURL: warnUser.displayAvatarURL() })
+            .addFields(
+                {
+                    name: '🙍 User',
+                    value: `<@${warnUser.id}>`,
+                    inline: true
+                },
+                {
+                    name: '🛡️ Staff Member',
+                    value: `<@${moderator.id}>`,
+                    inline: true
+                },
+                {
+                    name: '🗒️ Reason',
+                    value: codeBlock((warnReason || 'No reason provided'))
+                },
+                {
+                    name: '🪪 ID',
+                    value: codeBlock(warnId)
+                }
+            )
+    });
+
+    return interaction.editReply(`Warning successfully given!`);
 }
 
 /*async function listWarnings(guild: Guild, interaction: ChatInputCommandInteraction) {
