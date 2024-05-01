@@ -7,9 +7,8 @@ import {
     type Guild,
 } from 'discord.js';
 import { Command } from '../../typings/index.js';
-//import { sendBotLog } from '../../helpers.js';
 import { randomUUID } from 'node:crypto';
-import { sendBotLog } from '../../helpers.js';
+import { embedEntries, sendBotLog } from '../../helpers.js';
 
 
 const warnCommand: Command = {
@@ -74,7 +73,7 @@ const warnCommand: Command = {
                 await addWarning(interaction.guild, interaction);
                 break;
             case 'list':
-                //await listWarnings(interaction.guild, interaction);
+                await listWarnings(interaction.guild, interaction);
                 break;
             case 'remove':
                 //await removeWarning(interaction.guild, interaction);
@@ -170,11 +169,42 @@ async function addWarning(guild: Guild, interaction: ChatInputCommandInteraction
     return interaction.editReply(`Warning successfully given!`);
 }
 
-/*async function listWarnings(guild: Guild, interaction: ChatInputCommandInteraction) {
+async function listWarnings(guild: Guild, interaction: ChatInputCommandInteraction) {
+    const warnUser = interaction.options.get('user', true).user;
+    if (!warnUser) return interaction.editReply(`Required values have not been supplied`);
 
+    const warnings = await interaction.client.db
+        .selectFrom('warnings')
+        .selectAll()
+        .where('user_id', '=', warnUser.id)
+        .where('guild_id', '=', guild.id)
+        .execute()
+        .then((warnings) => {
+            return warnings;
+        })
+        .catch(() => {});
+    if (!warnings || warnings.length <= 0) return interaction.editReply(`User has no warnings on record.`);
+
+    const embeds = embedEntries(warnings, {
+        title: `Warnings for ${warnUser.displayName}`
+    }, (embed, warning) => {
+        embed.addFields({
+            name: warning.created_at.toLocaleString(),
+            value: `
+                🛡️ **Moderator**: <@${warning.mod_id}>
+                🗒️ **Reason**: ${codeBlock(warning.reason ? warning.reason : 'None provided.')}
+            `,
+            inline: true
+        });
+    });
+    if (!embeds) return interaction.editReply(`There are no embeds in response, unable to send data.`);
+
+    return interaction.editReply({
+        embeds: embeds
+    });
 }
 
-async function removeWarning(guild: Guild, interaction: ChatInputCommandInteraction) {
+/*async function removeWarning(guild: Guild, interaction: ChatInputCommandInteraction) {
 
 }*/
 
