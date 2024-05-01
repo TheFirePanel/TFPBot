@@ -76,7 +76,7 @@ const warnCommand: Command = {
                 await listWarnings(interaction.guild, interaction);
                 break;
             case 'remove':
-                //await removeWarning(interaction.guild, interaction);
+                await removeWarning(interaction.guild, interaction);
                 break;
         }
 
@@ -188,11 +188,11 @@ async function listWarnings(guild: Guild, interaction: ChatInputCommandInteracti
     const embeds = embedEntries(warnings, {
         title: `Warnings for ${warnUser.displayName}`
     }, (embed, warning) => {
+        // We only get 25 fields each embed, value is not human readable thanks to mobile
         embed.addFields({
             name: warning.created_at.toLocaleString(),
             value: `
-                🛡️ **Moderator**: <@${warning.mod_id}>
-                🗒️ **Reason**: ${codeBlock(warning.reason ? warning.reason : 'None provided.')}
+                🛡️ **Moderator**: <@${warning.mod_id}>\n🗒️ **Reason**: ${codeBlock(warning.reason ? warning.reason.substring(0,800) : 'None provided.')}🪪 **ID**: ${codeBlock(warning.id as string)}
             `,
             inline: true
         });
@@ -204,8 +204,19 @@ async function listWarnings(guild: Guild, interaction: ChatInputCommandInteracti
     });
 }
 
-/*async function removeWarning(guild: Guild, interaction: ChatInputCommandInteraction) {
+async function removeWarning(guild: Guild, interaction: ChatInputCommandInteraction) {
+    const warnId = interaction.options.get('id', true).value as string;
+    if (!warnId) return interaction.editReply(`Required values have not been supplied`);
 
-}*/
+    const removedWarn = await interaction.client.db
+        .deleteFrom('warnings')
+        .where('id', '=', warnId)
+        .where('guild_id', '=', guild.id)
+        .executeTakeFirst()
+        .catch(() => {});
+    if (!removedWarn || removedWarn.numDeletedRows <= 0) return interaction.editReply(`A warn by the supplied ID was not found, skipping.`);
+
+    return interaction.editReply(`Removed warn successfully.`);
+}
 
 export default warnCommand;
