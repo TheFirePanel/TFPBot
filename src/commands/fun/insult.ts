@@ -16,7 +16,8 @@ const insults: string[] = [
     '%s May the chocolate chips in your cookies always turn out to be raisins',
     `%s Sometimes it's better to keep your mouth shut and let people think you're silly than open it and confirm their suspicions`,
     '%s I bet your pH level is 14, because ya basic.',
-    '%s https://tenor.com/view/14699957714023232752'
+    '%s https://tenor.com/view/14699957714023232752',
+    'I'm not sure what is higher; the Minecraft 1.18 height update, or %s's ego.'
 ];
 
 const insultCommand: Command = {
