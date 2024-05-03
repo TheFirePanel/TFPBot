@@ -1,5 +1,5 @@
 # 🔥 TFPBot
-Fully custom typescript based discord bot for The Fire Panel Discord, you can join the discord today https://discord.gg/m2rP3R3Nng.
+Fully custom typescript based discord bot for The Fire Panel Discord, you can join the discord today https://discord.gg/y87YpNA.
 
 # ⭐ Features
 - Auto loading of commands/utilities/events

@@ -12,7 +12,7 @@ import type { Utility } from '../../typings/index.js';
  * @author DrPepperG
  * @desc This utility runs on guild member add and remove, sends a message in a configured channel.
  */
-const messageDeletionLog: Utility = {
+const joinLeaveLog: Utility = {
     name: 'joinLeaveLog',
     events: [Events.GuildMemberAdd, Events.GuildMemberRemove],
     async execute(member: GuildMember, eventName) {
@@ -51,4 +51,4 @@ const messageDeletionLog: Utility = {
     }
 };
 
-export default messageDeletionLog;
+export default joinLeaveLog;
