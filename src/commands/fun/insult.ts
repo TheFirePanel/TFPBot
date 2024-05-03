@@ -77,7 +77,7 @@ const insultCommand: Command = {
             ? selectedInsult
             : Object.keys(insults)[Math.floor(Math.random() * Object.keys(insults).length)];
 
-        if (!insultKey) return interaction.reply({ content: 'Insult key not supplied.', ephemeral: true});
+        if (!insultKey) return interaction.reply({ content: 'Insult key not supplied, '});
 
         const insult = insults[insultKey];
         if (!insult) return interaction.reply({ content: `Invalid insult name, or no insults exist!`, ephemeral: true });

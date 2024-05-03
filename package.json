@@ -1,6 +1,6 @@
 {
   "name": "tfp-bot",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "description": "TFP's Custom Discord Bot",
   "type": "module",
   "main": "dist/index.js",
@@ -14,8 +14,8 @@
   "author": "The Fire Panel",
   "license": "MIT",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
     "eslint": "^8.57.0",
     "kysely-codegen": "^0.15.0",
     "nodemon": "^3.1.0",
