@@ -29,6 +29,15 @@ export interface Modmail {
   user_id: Generated<string | null>;
 }
 
+export interface Warnings {
+  created_at: Generated<Date>;
+  guild_id: string;
+  id: unknown;
+  mod_id: string;
+  reason: Generated<string | null>;
+  user_id: string;
+}
+
 export interface YoutubeChannels {
   added_by: Generated<string | null>;
   channel_id: string;
@@ -40,5 +49,6 @@ export interface DB {
   configs: Configs;
   mod_channels: ModChannels;
   modmail: Modmail;
+  warnings: Warnings;
   youtube_channels: YoutubeChannels;
 }
