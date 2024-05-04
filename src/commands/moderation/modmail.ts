@@ -10,15 +10,15 @@ import { randomUUID } from 'node:crypto';
 
 const modmailCommand: Command = {
     data: new SlashCommandBuilder()
+        .setName('modmail')
+        .setDescription('Sends a message to the mod team.')
+        .setDMPermission(false)
         .addStringOption(option => 
             option
                 .setName('message')
                 .setDescription('The message for the mod team.')
                 .setRequired(true)
-        )
-        .setDMPermission(false)
-        .setName('modmail')
-        .setDescription('Sends a message to the mod team.'),
+        ),
     async execute(interaction) {
         if (!interaction.guild) return;
         interaction.deferReply({ ephemeral: true });

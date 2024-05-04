@@ -31,7 +31,7 @@ declare module 'discord.js' {
 // #region Interfaces
 
 export interface Command {
-    data: SlashCommandBuilder,
+    data: SlashCommandBuilder<undefined>,
     autocomplete?: (arg0: AutocompleteInteraction) => void,
     execute: (arg0: ChatInputCommandInteraction) => void
 }
