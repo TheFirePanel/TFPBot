@@ -37,8 +37,8 @@ const insults: { [key: string]: { text: string } } = {
     'mew': {
         text: '%s https://tenor.com/view/14699957714023232752'
     },
-    'minecraft': {
-        text: `I'm not sure what is higher; the Minecraft 1.18 height update, or %s's ego.`
+    'ego': {
+        text: `I'm not sure which is higher; the Minecraft 1.18 height limit, or %s's ego.`
     }
 };
 
