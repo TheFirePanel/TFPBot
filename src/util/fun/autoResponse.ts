@@ -39,6 +39,7 @@ const autoResponse: Utility = {
                 });
             this.cache.refresh = false;
         }
+
         if (!message.guild) return;
         const guildResponses: Collection<string, Response> = this.cache?.responses[message.guild.id];
         if (!guildResponses) return;

@@ -59,15 +59,29 @@ const responsesCommand: Command = {
     async execute(interaction) {
         if (!interaction.channel || !interaction.channel.isTextBased() || !interaction.inCachedGuild()) return;
 
+        // This should never run but we will do this anyway, command is blocked from dms
+        if (!interaction.guild) return interaction.reply({ content: `This command must be ran in a guild!`, ephemeral: true })
+            .catch(console.error);
+
+        await interaction.deferReply({ ephemeral: true })
+            .catch(console.error);
+
         const subCommand = interaction.options.getSubcommand();
         switch (subCommand) {
             case 'add':
-                await createReaction(interaction.guild, interaction);
+                await addResponse(interaction.guild, interaction);
         }
+
+        if (!interaction.replied) {
+            interaction.editReply(`Function has completed but no reply was given, please contact a bot administrator.`)
+                .catch(console.error);
+        }
+        
+        return;
     }
 };
 
-async function createReaction(guild: Guild, interaction: ChatInputCommandInteraction) {
+async function addResponse(guild: Guild, interaction: ChatInputCommandInteraction) {
     await interaction.client.db
         .insertInto('responses')
         .values({
@@ -79,6 +93,12 @@ async function createReaction(guild: Guild, interaction: ChatInputCommandInterac
             value: interaction.options.getString('response_value', true),
         })
         .execute();
+    
+    // Tell the utility to refresh the cache
+    const cache = interaction.client.util.get('autoResponse')?.cache;
+    if (cache) cache.refresh = true;
+
+    return interaction.editReply(`Response added to guild!`);
 }
 
 export default responsesCommand;

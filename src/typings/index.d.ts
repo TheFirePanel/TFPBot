@@ -39,7 +39,10 @@ export interface Command {
 export interface Utility {
     name: string,
     events?: Events | Events[],
-    cache?: { [key: string]: Array | object | string },
+    cache?: {
+        [key: string]: Array | object | string
+        refresh?: boolean
+    },
     execute: (...args: any, event?: Events) => void
 }
 
