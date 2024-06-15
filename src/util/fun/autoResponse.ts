@@ -76,7 +76,8 @@ const autoResponse: Utility = {
                     break;
                 case 'message':
                     message.reply({
-                        content: response.value
+                        content: response.value,
+                        allowedMentions: { repliedUser: false }
                     }).catch(() => {});
                     break;    
             }
