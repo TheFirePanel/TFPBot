@@ -1,7 +1,8 @@
-import { SlashCommandBuilder, PermissionFlagsBits, type Guild, type ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, type Guild, type ChatInputCommandInteraction, Collection } from 'discord.js';
 import { Command } from '../../typings/index.js';
-import { checkEmoji } from '../../helpers.js';
+import { checkEmoji, embedEntries } from '../../helpers.js';
 import { randomUUID } from 'node:crypto';
+import { Responses } from '../../typings/database.js';
 
 const responsesCommand: Command = {
     data: new SlashCommandBuilder()
@@ -19,29 +20,34 @@ const responsesCommand: Command = {
                         )
                         .setRequired(true)
                     )
-                    .addStringOption(option => 
-                        option
-                            .setName('response_type')
-                            .setDescription('What should the reply be?')
-                            .addChoices(
-                                { name: 'Reaction', value: 'reaction' },
-                                { name: 'Message', value: 'message' }
-                            )
-                            .setRequired(true)
+                .addStringOption(option => 
+                    option
+                        .setName('response_type')
+                        .setDescription('What should the reply be?')
+                        .addChoices(
+                            { name: 'Reaction', value: 'reaction' },
+                            { name: 'Message', value: 'message' }
                         )
-                    .addStringOption(option =>
-                        option
-                            .setName('response_trigger')
-                            .setDescription('What should the response trigger be?')
-                            .setRequired(true)
+                        .setRequired(true)
                     )
-                    .addStringOption(option =>
-                        option
-                            .setName('response_value')
-                            .setDescription('What should the response be?')
-                            .setRequired(true)
-                    )
+                .addStringOption(option =>
+                    option
+                        .setName('response_trigger')
+                        .setDescription('What should the response trigger be?')
+                        .setRequired(true)
                 )
+                .addStringOption(option =>
+                    option
+                        .setName('response_value')
+                        .setDescription('What should the response be?')
+                        .setRequired(true)
+                )
+            )
+        .addSubcommand(option => 
+            option
+                .setName('list')
+                .setDescription('List configured responses in the guild.')
+        )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove')
@@ -71,6 +77,10 @@ const responsesCommand: Command = {
         switch (subCommand) {
             case 'add':
                 await addResponse(interaction.guild, interaction);
+                break;
+            case 'list':
+                await listResponses(interaction.guild, interaction);
+                break;
         }
 
         if (!interaction.replied) {
@@ -109,6 +119,29 @@ async function addResponse(guild: Guild, interaction: ChatInputCommandInteractio
     if (cache) cache.refresh = true;
 
     return interaction.editReply(`Response added to guild!`);
+}
+
+async function listResponses(guild: Guild, interaction: ChatInputCommandInteraction) {
+    const guildResponses: Collection<string, Responses> = interaction.client.util.get('autoResponse')
+        ?.cache
+        ?.responses[guild.id];
+    if (!guildResponses) return interaction.editReply('No configured responses in this guild.');
+
+    const embeds = embedEntries(guildResponses.toJSON(), {
+        title: `Responses for ${guild.name}`
+    }, (embed, response) => {
+        // We only get 25 fields each embed, value is not human readable thanks to mobile
+        embed.addFields({
+            name: `${response.id}`,
+            value: `**Trigger**: ${response.trigger}\n**Value**: ${response.value}\n**Type**: ${response.type}\n**Response Type**: ${response.response_type}`,
+            inline: true
+        });
+    });
+    if (!embeds) return interaction.editReply(`There are no embeds in response, unable to send data.`);
+
+    return interaction.editReply({
+        embeds: embeds
+    });
 }
 
 export default responsesCommand;

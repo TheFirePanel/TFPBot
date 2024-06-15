@@ -1,7 +1,7 @@
 import { Collection, type EmojiIdentifierResolvable, Events, type Message } from 'discord.js';
 import { type Utility } from '../../typings/index.js';
 
-type Response = {
+export type Response = {
     type: "phrase" | "word";
 } & (
     | { response_type: "reaction"; value: EmojiIdentifierResolvable }
@@ -22,6 +22,7 @@ const autoResponse: Utility = {
         responses: {}
     },
     async execute(message: Message) {
+        if (message.author.bot) return;
         if (this.cache?.refresh) {
             await message.client.db
                 .selectFrom('responses')
