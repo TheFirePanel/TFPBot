@@ -3,7 +3,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
     AttachmentBuilder,
-    EmbedBuilder
+    EmbedBuilder,
+    parseEmoji
 } from 'discord.js';
 import type {
     Attachment,
@@ -193,6 +194,21 @@ export function embedEntries<T>(array: T[], options: {
     });
     
     return embeds;
+}
+
+/**
+ * Validates if string contains an emoji, works with unicode and discord emojis
+ * @param text The string to validate
+ * @example 
+ * const validEmoji = checkEmoji('🔥'); // true
+ * const validEmoji = checkEmoji('test'); // false
+ */
+export function checkEmoji(text: string): boolean {
+    const discordEmoji = parseEmoji(text);
+    if (discordEmoji?.id) return true;
+
+    const emojiRegex = /^(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F|\p{Emoji}\u200D\p{Emoji}|\p{Extended_Pictographic})+$/u;
+    return emojiRegex.test(text);
 }
 
 export default {};

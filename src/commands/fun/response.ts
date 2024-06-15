@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, type Guild, type ChatInputCommandInteraction } from 'discord.js';
 import { Command } from '../../typings/index.js';
+import { checkEmoji } from '../../helpers.js';
 import { randomUUID } from 'node:crypto';
 
 const responsesCommand: Command = {
@@ -82,15 +83,24 @@ const responsesCommand: Command = {
 };
 
 async function addResponse(guild: Guild, interaction: ChatInputCommandInteraction) {
+    const responseType = interaction.options.getString('response_type', true);
+    const responseValue = interaction.options.getString('response_value', true);
+    if (responseType === 'reaction') {
+        const validEmoji = checkEmoji(responseValue);
+        if (!validEmoji) {
+            return interaction.editReply(`Please supply a valid emoji for the reaction.`);
+        }
+    }
+
     await interaction.client.db
         .insertInto('responses')
         .values({
             id: randomUUID(),
             guild_id: guild.id,
             type: interaction.options.getString('type', true),
-            response_type: interaction.options.getString('response_type', true),
+            response_type: responseType,
             trigger: interaction.options.getString('response_trigger', true),
-            value: interaction.options.getString('response_value', true),
+            value: responseValue,
         })
         .execute();
     
