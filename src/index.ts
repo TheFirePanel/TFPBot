@@ -137,7 +137,8 @@ const commandFiles = getFiles('commands');
 
 for (const file of commandFiles) {
     const command = await import(pathToFileURL(file).href)
-        .then((command) => command.default);
+        .then((command) => command.default)
+        .catch(() => {});
 
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
@@ -154,9 +155,11 @@ const utilFiles = getFiles('util');
 
 for (const file of utilFiles) {
     const util = await import(pathToFileURL(file).href)
-        .then((util) => util.default);
+        .then((util) => util.default)
+        .catch(() => {});
 
-    if (!util) { continue; }
+    if (!util || !util.name) continue;
+    if (util.refreshCache) util.refreshCache(); // Run refresh cache if the utility has one
     
     client.util.set(util.name, util);
     console.log(color.green(`Loaded utility ${color.bgCyan(util.name)}`));
@@ -167,7 +170,8 @@ const eventFiles = getFiles('events');
 
 for (const file of eventFiles) {
     const event = await import(pathToFileURL(file).href)
-        .then((event) => event.default);
+        .then((event) => event.default)
+        .catch(() => {});
     // Go ahead and calculate used utilities beforehand
     const utilsToRun = client.util.filter((util) => util.events?.includes(event.name));
 

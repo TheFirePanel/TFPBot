@@ -86,10 +86,7 @@ const youtubeWatcherCommand: Command = {
 
         // Tell the utility to grab from the database next run
         const cache = client.util.get('youtubeWatcher')?.cache;
-
-        if (cache) {
-            cache.refresh = true;
-        }
+        if (cache) cache.refresh = true;
 
         return true;
     }
