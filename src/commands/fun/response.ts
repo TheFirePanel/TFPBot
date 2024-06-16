@@ -73,16 +73,20 @@ const responsesCommand: Command = {
         const { client, guild } = interaction;
 
         const focusedValue: string = interaction.options.getFocused();
-        const guildResponses = client.util.get('autoResponse')?.cache?.responses[guild.id]
+        const guildResponses = client.util.get('autoResponse')?.cache?.responses[guild.id];
+        if (!guildResponses) return await interaction.respond([]); // Send empty response
+
+        const filteredResponses = guildResponses
             .filter((response: Responses) => 
                 String(response.trigger).startsWith(focusedValue)
             )
             .map((response: Responses) => ({ 
                 name: `[${String(response.id).substring(0, 8)}] ${response.trigger}`,
                 value: response.id 
-            }));
+            }))
+            .slice(0, 25); // Responses are limited to 25 options
 
-        await interaction.respond(guildResponses)
+        await interaction.respond(filteredResponses)
             .catch(console.error);
     },
     async execute(interaction) {
