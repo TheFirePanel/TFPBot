@@ -8,6 +8,7 @@ Fully custom typescript based discord bot for The Fire Panel Discord, you can jo
 - [Simplex model number checker](https://github.com/TheFirePanel/SimplexModelChecker) /smc
 - Moderation channels (Private chats for individuals with moderation staff)
 - Direct message modmail (Quick reports for server members)
+- Guild based auto response (Configured using slash commands)
 
 # 🤔 Request a feature
 Features can be requested on the discord in the #suggestions-feedback channel.
