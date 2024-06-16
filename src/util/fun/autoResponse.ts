@@ -64,7 +64,8 @@ const autoResponse: Utility = {
         guildResponses.each((value, key) => {
             switch(value.type) {
                 case 'word':
-                    if (!content.includes(key)) return;
+                    // Check whole words, includes lets something like test return true for "est"
+                    if (!new RegExp(`\\b${key}\\b`).test(content)) return;
                     break;
                 case 'phrase':
                     if (content !== key) return;
