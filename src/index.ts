@@ -158,7 +158,8 @@ for (const file of utilFiles) {
         .then((util) => util.default)
         .catch(() => {});
 
-    if (!util || !util.name) { continue; }
+    if (!util || !util.name) continue;
+    if (util.refreshCache) util.refreshCache(); // Run refresh cache if the utility has one
     
     client.util.set(util.name, util);
     console.log(color.green(`Loaded utility ${color.bgCyan(util.name)}`));

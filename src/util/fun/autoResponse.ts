@@ -1,5 +1,6 @@
 import { Collection, type EmojiIdentifierResolvable, Events, type Message } from 'discord.js';
 import { type Utility } from '../../typings/index.js';
+import { db } from '../../database/database.js';
 
 export type Response = {
     type: "phrase" | "word";
@@ -18,28 +19,34 @@ const autoResponse: Utility = {
     name: 'autoResponse',
     events: Events.MessageCreate,
     cache: {
-        refresh: true,
         responses: {}
     },
-    async execute(message: Message) {
-        if (message.author.bot) return;
-        if (this.cache?.refresh) {
-            await message.client.db
-                .selectFrom('responses')
-                .selectAll()
-                .execute()
-                .then((values) => {
-                    if (!autoResponse.cache) return;
-                    const cache = this.cache?.responses;
-                    values.forEach((response) => {
-                        if (!response.guild_id) return; // Make sure a guild exists
-                        // Create a new collection if it doesn't exist
-                        if (!cache[response.guild_id]) cache[response.guild_id] = new Collection();
-                        cache[response.guild_id]?.set(response.trigger, response);
-                    });
+    async refreshCache() {
+        if (!this.cache?.responses) return;
+
+        // Clear cache
+        this.cache.responses = {};
+
+        await db.selectFrom('responses')
+            .selectAll()
+            .execute()
+            .then((values) => {
+                values.forEach((response) => {
+                    if (!response.guild_id) return; // Make sure a guild exists
+                    // Create a new collection if it doesn't exist
+                    if (!this.cache?.responses[response.guild_id]) this.cache!.responses[response.guild_id] = new Collection();
+                    this.cache?.responses[response.guild_id]?.set(response.trigger, response);
                 });
-            this.cache.refresh = false;
+            })
+            .catch();
+    },
+    async execute(message: Message) {
+        if (!this.refreshCache) {
+            console.error('Missing refresh cache method!');
+            return;
         }
+
+        if (message.author.bot) return;
 
         if (!message.guild) return;
         const guildResponses: Collection<string, Response> = this.cache?.responses[message.guild.id];
@@ -84,7 +91,7 @@ const autoResponse: Utility = {
                     break;    
             }
         });
-    }
+    },
 };
 
 export default autoResponse;

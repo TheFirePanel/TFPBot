@@ -15,18 +15,8 @@ const responsesCommand: Command = {
                         .setName('type')
                         .setDescription('What type of response is this?')
                         .addChoices(
-                            { name: 'Word', value: 'word' },
-                            { name: 'Phrase', value: 'phrase' }
-                        )
-                        .setRequired(true)
-                    )
-                .addStringOption(option => 
-                    option
-                        .setName('response_type')
-                        .setDescription('What should the reply be?')
-                        .addChoices(
-                            { name: 'Reaction', value: 'reaction' },
-                            { name: 'Message', value: 'message' }
+                            { name: 'word', value: 'word' },
+                            { name: 'phrase', value: 'phrase' }
                         )
                         .setRequired(true)
                     )
@@ -36,6 +26,16 @@ const responsesCommand: Command = {
                         .setDescription('What should the response trigger be?')
                         .setRequired(true)
                 )
+                .addStringOption(option => 
+                    option
+                        .setName('response_type')
+                        .setDescription('What should the reply be?')
+                        .addChoices(
+                            { name: 'reaction', value: 'reaction' },
+                            { name: 'message', value: 'message' }
+                        )
+                        .setRequired(true)
+                    )
                 .addStringOption(option =>
                     option
                         .setName('response_value')
@@ -54,7 +54,7 @@ const responsesCommand: Command = {
                 .setDescription('Remove a response from the guild.')
                 .addStringOption(option => 
                     option
-                        .setName('response_id')
+                        .setName('id')
                         .setDescription('ID of the response to remove from the guild.')
                         .setRequired(true)
                     )
@@ -80,6 +80,9 @@ const responsesCommand: Command = {
                 break;
             case 'list':
                 await listResponses(interaction.guild, interaction);
+                break;
+            case 'remove':
+                await removeResponse(interaction.guild, interaction);
                 break;
         }
 
@@ -113,10 +116,10 @@ async function addResponse(guild: Guild, interaction: ChatInputCommandInteractio
             value: responseValue,
         })
         .execute();
-    
+
     // Tell the utility to refresh the cache
-    const cache = interaction.client.util.get('autoResponse')?.cache;
-    if (cache) cache.refresh = true;
+    await interaction.client.util.get('autoResponse')
+        ?.refreshCache?.();
 
     return interaction.editReply(`Response added to guild!`);
 }
@@ -133,7 +136,7 @@ async function listResponses(guild: Guild, interaction: ChatInputCommandInteract
         // We only get 25 fields each embed, value is not human readable thanks to mobile
         embed.addFields({
             name: `${response.id}`,
-            value: `**Trigger**: ${response.trigger}\n**Value**: ${response.value}\n**Type**: ${response.type}\n**Response Type**: ${response.response_type}`,
+            value: `**🏷️Type**: ${response.type}\n**🪤Trigger**: ${response.trigger}\n**🗣️Response Type**: ${response.response_type}\n**📋Value**: ${response.value}`,
             inline: true
         });
     });
@@ -142,6 +145,25 @@ async function listResponses(guild: Guild, interaction: ChatInputCommandInteract
     return interaction.editReply({
         embeds: embeds
     });
+}
+
+async function removeResponse(guild: Guild, interaction: ChatInputCommandInteraction) {
+    const responseId = interaction.options.get('id', true).value as string;
+    if (!responseId) return interaction.editReply(`Required values have not been supplied`);
+
+    const removedResponse = await interaction.client.db
+        .deleteFrom('responses')
+        .where('id', '=', responseId)
+        .where('guild_id', '=', guild.id)
+        .executeTakeFirst()
+        .catch(() => {});
+    if (!removedResponse || removedResponse.numDeletedRows <= 0) return interaction.editReply(`A response by the supplied ID was not found, skipping.`);
+
+    // Tell the utility to refresh the cache
+    await interaction.client.util.get('autoResponse')
+        ?.refreshCache?.();
+
+    return interaction.editReply(`Removed response successfully.`);
 }
 
 export default responsesCommand;

@@ -43,6 +43,7 @@ export interface Utility {
         [key: string]: Array | object | string
         refresh?: boolean
     },
+    refreshCache?: () => Promise<void> | void,
     execute: (...args: any, event?: Events) => void
 }
 
