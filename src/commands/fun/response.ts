@@ -54,15 +54,41 @@ const responsesCommand: Command = {
                 .setDescription('Remove a response from the guild.')
                 .addStringOption(option => 
                     option
-                        .setName('id')
-                        .setDescription('ID of the response to remove from the guild.')
+                        .setName('trigger')
+                        .setDescription('Trigger string of the response to remove from the guild.')
                         .setRequired(true)
+                        .setAutocomplete(true)
                     )
                 )
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
         .setDMPermission(false)
         .setName('response')
         .setDescription('Configuration for the response feature!'),
+    async autocomplete(interaction) {
+        if (!interaction.inCachedGuild()) return;
+
+        const subCommand = interaction.options.getSubcommand();
+        if (subCommand !== 'remove') return;
+
+        const { client, guild } = interaction;
+
+        const focusedValue: string = interaction.options.getFocused();
+        const guildResponses = client.util.get('autoResponse')?.cache?.responses[guild.id];
+        if (!guildResponses) return await interaction.respond([]); // Send empty response
+
+        const filteredResponses = guildResponses
+            .filter((response: Responses) => 
+                String(response.trigger).startsWith(focusedValue)
+            )
+            .map((response: Responses) => ({ 
+                name: `[${String(response.id).substring(0, 8)}] ${response.trigger}`,
+                value: response.id 
+            }))
+            .slice(0, 25); // Responses are limited to 25 options
+
+        await interaction.respond(filteredResponses)
+            .catch(console.error);
+    },
     async execute(interaction) {
         if (!interaction.channel || !interaction.channel.isTextBased() || !interaction.inCachedGuild()) return;
 
@@ -112,7 +138,7 @@ async function addResponse(guild: Guild, interaction: ChatInputCommandInteractio
             guild_id: guild.id,
             type: interaction.options.getString('type', true),
             response_type: responseType,
-            trigger: interaction.options.getString('response_trigger', true),
+            trigger: interaction.options.getString('response_trigger', true).toLowerCase(),
             value: responseValue,
         })
         .execute();
@@ -148,7 +174,7 @@ async function listResponses(guild: Guild, interaction: ChatInputCommandInteract
 }
 
 async function removeResponse(guild: Guild, interaction: ChatInputCommandInteraction) {
-    const responseId = interaction.options.get('id', true).value as string;
+    const responseId = interaction.options.get('trigger', true).value as string;
     if (!responseId) return interaction.editReply(`Required values have not been supplied`);
 
     const removedResponse = await interaction.client.db

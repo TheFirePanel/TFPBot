@@ -59,13 +59,12 @@ const autoResponse: Utility = {
 
         // Store our content
         const content = message.content.toLowerCase();
-        const contentSplit = content.split(' '); // Split content for words
 
         // Check each response
         guildResponses.each((value, key) => {
             switch(value.type) {
                 case 'word':
-                    if (!contentSplit.includes(key)) return;
+                    if (!content.includes(key)) return;
                     break;
                 case 'phrase':
                     if (content !== key) return;
