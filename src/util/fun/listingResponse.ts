@@ -11,32 +11,38 @@ type ParsedData = {
     }
 }
 
+type AllowedSites = { 
+    [key: string]: {
+        meta: {
+            title: string,
+            page?: string,
+            logoUrl?: string
+        },
+        url: { 
+            [key: string]: {
+                title: string
+                value: (url: string) => string | null | undefined,
+            }
+        },
+        html: {
+            [key: string]: {
+                title: string,
+                selector: string
+            }
+        }
+    }
+}
+
 /**
  * url: Function code to grab any elements from the url
  * html: Provide any selectors for grabbing content from html
  */
-const allowedSites: { [key: string]: {
-    meta: {
-        title: string,
-        logoUrl?: string
-    },
-    url: { 
-        [key: string]: {
-            title: string
-            value: (url: string) => string | null | undefined,
-        }
-    },
-    html: {
-        [key: string]: {
-            title: string,
-            selector: string
-        }
-    }
-} } = {
+const allowedSites: AllowedSites = {
     'ebay.com': {
         meta: {
             title: 'eBay',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/EBay_logo.svg/2560px-EBay_logo.svg.png'
+            page: 'itm',
+            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
         },
         url: {
             'id': {
@@ -105,6 +111,11 @@ const listingResponse: Utility = {
 async function parseSite(url: string, domain: string): Promise<ParsedData | null> {
     const allowedSite = allowedSites[domain];
     if (!allowedSite) return null;
+    // If we set a page then validate it
+    if (allowedSite.meta.page) {
+        const regex = new RegExp(`/${allowedSite.meta.page}/([^/?]+)`);
+        if (!regex.test(url)) return null;
+    }
     
     const response = await axios.get(url).catch(() => {});
     if (!response) return null;
