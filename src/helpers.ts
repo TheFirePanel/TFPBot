@@ -211,4 +211,16 @@ export function checkEmoji(text: string): boolean {
     return emojiRegex.test(text);
 }
 
+/**
+ * Validates if string is a url.
+ * @param url The url to validate
+ * @example
+ * const validUrl = checkUrl('https://ebay.com') // true
+ * const validUrl = checkUrl('yooo') // false
+ */
+export function checkUrl(url: string): boolean {
+    const urlRegex = /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s]*$/i;
+    return urlRegex.test(url);
+}
+
 export default {};
