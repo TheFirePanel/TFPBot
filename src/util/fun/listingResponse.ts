@@ -1,4 +1,4 @@
-import { ColorResolvable, EmbedBuilder, Events, codeBlock, type Message } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, EmbedBuilder, Events, codeBlock, type Message } from 'discord.js';
 import { type Utility } from '../../typings/index.js';
 import { checkUrl } from '../../helpers.js';
 import axios from 'axios';
@@ -16,7 +16,7 @@ type AllowedSites = {
         meta: {
             title: string,
             color: ColorResolvable,
-            description: string,
+            description?: string,
             page?: string,
             logoUrl?: string
         },
@@ -46,9 +46,8 @@ type AllowedSites = {
 export const allowedSites: AllowedSites = {
     'ebay.com': {
         meta: {
-            title: 'eBay',
+            title: 'eBay Listing',
             color: 'Yellow',
-            description: "Enhance your fire safety system with eBay item previews right at your fingertips. Our integrated interface displays detailed images, descriptions, and prices of essential fire alarm components",
             logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png',
             page: 'itm',
         },
@@ -182,7 +181,7 @@ async function generateEmbed(message: Message, url: string, domain: string, pars
     const embed = new EmbedBuilder()
         .setTitle(allowedSite.meta.title)
         .setColor(allowedSite.meta.color)
-        .setDescription(`${allowedSite.meta.description}\n${url}`)
+        .setDescription(allowedSite.meta.description ? `${allowedSite.meta.description}\n${url}` : url)
         .setThumbnail(allowedSite.meta.logoUrl ? allowedSite.meta.logoUrl : null)
         .setURL(url)
         .setTimestamp()
@@ -207,9 +206,18 @@ async function generateEmbed(message: Message, url: string, domain: string, pars
         }
     }
 
+    // Create button link
+    const button = new ButtonBuilder()
+        .setLabel(domain)
+        .setURL(url)
+        .setStyle(ButtonStyle.Link);
+    const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(button);
+
     message.channel.send({
-        files: displayImage ? [{ attachment: displayImage }] : [],
-        embeds: [ embed ]
+        components: [row],
+        embeds: [embed],
+        files: displayImage ? [{ attachment: displayImage }] : []
     }).catch(console.log);
 
     message.delete().catch(() => {});
