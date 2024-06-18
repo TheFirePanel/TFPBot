@@ -13,7 +13,7 @@ export type Response = {
  * @name autoResponse
  * @event MessageCreate
  * @author DrPepperG
- * @desc This utility initializes the 
+ * @desc This utility runs on each message, checking the stored bot responses for a match
  */
 const autoResponse: Utility = {
     name: 'autoResponse',
