@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import type { Utility } from '../../typings/index.js';
 import { sendBotLog } from '../../helpers.js';
+import { allowedSites } from '../fun/listingResponse.js';
 
 /**
  * @name messageDeletionLog
@@ -21,6 +22,9 @@ const messageDeletionLog: Utility = {
         if (!message || !message.guild) return;
         if (message.channel.isDMBased()) return;
         if (!message.partial && (message.author?.id === message.client.user.id)) return;
+
+        // Check if deleted message was one of our deletions, using listingResponse
+        if (Object.keys(allowedSites).every((site) => { return message.content?.includes(site); })) return;
 
         const embed = new EmbedBuilder();
         embed.addFields(

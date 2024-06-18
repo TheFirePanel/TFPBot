@@ -1,4 +1,4 @@
-import { Events, type Message } from 'discord.js';
+import { ColorResolvable, EmbedBuilder, Events, codeBlock, type Message } from 'discord.js';
 import { type Utility } from '../../typings/index.js';
 import { checkUrl } from '../../helpers.js';
 import axios from 'axios';
@@ -15,19 +15,23 @@ type AllowedSites = {
     [key: string]: {
         meta: {
             title: string,
+            color: ColorResolvable,
+            description: string,
             page?: string,
             logoUrl?: string
         },
         url: { 
             [key: string]: {
                 title: string
-                value: (url: string) => string | null | undefined,
+                value: (url: string) => string | null | undefined
             }
         },
         html: {
             [key: string]: {
+                prop?: string,
                 title: string,
-                selector: string
+                selector: string,
+                embed?: boolean
             }
         }
     }
@@ -36,43 +40,52 @@ type AllowedSites = {
 /**
  * url: Function code to grab any elements from the url
  * html: Provide any selectors for grabbing content from html
+ * 
+ * 'image' key will always be set as image
  */
-const allowedSites: AllowedSites = {
+export const allowedSites: AllowedSites = {
     'ebay.com': {
         meta: {
             title: 'eBay',
+            color: 'Yellow',
+            description: "Enhance your fire safety system with eBay item previews right at your fingertips. Our integrated interface displays detailed images, descriptions, and prices of essential fire alarm components",
+            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png',
             page: 'itm',
-            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
         },
         url: {
             'id': {
-                title: 'ID',
+                title: '🏷️ ID',
                 value: (url: string) => {
-                    const id = url.match(/\/(\d+)\?/);
+                    const id = url.match(/\/(\d+)/);
                     return id ? id[1] : null; 
                 }
             }
         },
         html: {
             'item_name': {
-                title: 'Item Name',
+                title: '📦 Item Name',
                 selector: '.x-item-title__mainTitle > span'
             },
             'seller_name': {
-                title: 'Seller Name',
+                title: '🧍 Seller Name',
                 selector: '.x-sellercard-atf__info__about-seller > a > span'
             },
             'condition': {
-                title: 'Condition',
+                title: '⛓️‍💥 Condition',
                 selector: '.x-item-condition-text .ux-textspans'
             },
             'price': {
-                title: 'Price',
+                title: '💰 Price',
                 selector: '.x-price-primary'
             },
             'shipping': {
-                title: 'Shipping',
-                selector: '.ux-labels-values__values-content span:first'
+                title: '🚚 Shipping',
+                selector: '.ux-labels-values--shipping .ux-textspans--BOLD'
+            },
+            'image': {
+                title: 'image',
+                prop: 'content',
+                selector: 'meta[name="twitter:image"]'
             }
         }
     }
@@ -99,11 +112,17 @@ const listingResponse: Utility = {
             const domain = word.replace(/^(?:https?:\/\/)?(?:[^\/]+\.)?([^.\/]+\.[^.\/]+).*$/, "$1");
             if (!Object.keys(allowedSites).includes(domain)) return;
 
-            parseSite(word, domain)
+            // Remove the query parameters
+            const cleanedUrl = word.split("?")[0];
+            if (!cleanedUrl) return;
+
+            // Parse the site
+            parseSite(cleanedUrl, domain)
                 .then((parsedData) => {
                     if (!parsedData) return;
-                    generateEmbed(message, word, domain, parsedData);
-                });
+                    generateEmbed(message, cleanedUrl, domain, parsedData);
+                })
+                .catch(() => {});
         });
     },
 };
@@ -127,9 +146,18 @@ async function parseSite(url: string, domain: string): Promise<ParsedData | null
         const $ = cheerio.load(response.data);
         
         for (const [key, el] of Object.entries(allowedSite.html)) {
+            const selected = $(el?.selector);
+
+            let value = null;
+            if (el.prop) {
+                value = selected.prop(el.prop);
+            } else {
+                value = selected.text();
+            }
+
             parsedData[key] = {
                 title: el.title,
-                value: $(el?.selector).text()
+                value: value
             };
         }
     }
@@ -148,8 +176,43 @@ async function parseSite(url: string, domain: string): Promise<ParsedData | null
 }
 
 async function generateEmbed(message: Message, url: string, domain: string, parsedData: ParsedData) {
-    message.reply(JSON.stringify(parsedData));
-    console.log(parsedData, url, domain);
+    const allowedSite = allowedSites[domain];
+    if (!parsedData || !allowedSite) return;
+
+    const embed = new EmbedBuilder()
+        .setTitle(allowedSite.meta.title)
+        .setColor(allowedSite.meta.color)
+        .setDescription(`${allowedSite.meta.description}\n${url}`)
+        .setThumbnail(allowedSite.meta.logoUrl ? allowedSite.meta.logoUrl : null)
+        .setURL(url)
+        .setTimestamp()
+        .setAuthor({ name: message.author.displayName, iconURL: message.author.displayAvatarURL() })
+        .setFooter({ text: `Version ${process.env.version}`});
+
+    let displayImage = null;
+    for (const [key, field] of Object.entries(parsedData)) {
+        if (!field.value) continue;
+
+        switch (key) {
+            case 'image':
+                displayImage = field.value;
+                break;
+            default:
+                embed.addFields({
+                    name: field.title,
+                    value: codeBlock(field.value),
+                    inline: (field.value.length <= 20)
+                });
+                break;
+        }
+    }
+
+    message.channel.send({
+        files: displayImage ? [{ attachment: displayImage }] : [],
+        embeds: [ embed ]
+    }).catch(console.log);
+
+    message.delete().catch(() => {});
 }
 
 export default listingResponse;
