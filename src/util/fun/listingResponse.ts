@@ -20,18 +20,25 @@ type AllowedSites = {
             page?: string,
             logoUrl?: string
         },
-        url: { 
+        url?: { 
             [key: string]: {
                 title: string
                 value: (url: string) => string | null | undefined
             }
         },
-        html: {
+        html?: {
             [key: string]: {
                 prop?: string,
                 title: string,
                 selector: string,
-                embed?: boolean
+                embed?: boolean,
+                func?: (text: string) => string | null | undefined
+            }
+        },
+        text?: {
+            [key: string]: {
+                title: string,
+                value: string
             }
         }
     }
@@ -79,7 +86,12 @@ export const allowedSites: AllowedSites = {
             },
             'shipping': {
                 title: '🚚 Shipping',
-                selector: '.ux-labels-values--shipping .ux-textspans--BOLD'
+                selector: '.ux-labels-values--shipping .ux-textspans--BOLD',
+                func: (text) => {
+                    return (text.toLocaleLowerCase() === 'free') 
+                        ? text
+                        : 'See listing';
+                }
             },
             'image': {
                 title: 'image',
@@ -154,6 +166,11 @@ async function parseSite(url: string, domain: string): Promise<ParsedData | null
                 value = selected.text();
             }
 
+            // If we have a function, run the function and override the value
+            if (el.func) {
+                value = el.func(value);
+            }
+
             parsedData[key] = {
                 title: el.title,
                 value: value
@@ -167,6 +184,16 @@ async function parseSite(url: string, domain: string): Promise<ParsedData | null
             parsedData[key] = {
                 title: el.title,
                 value: el.value(url)
+            };
+        }
+    }
+
+    // Add any text if it exists
+    if (allowedSite.text) {
+        for (const [key, el] of Object.entries(allowedSite.text)) {
+            parsedData[key] = {
+                title: el.title,
+                value: el.value
             };
         }
     }
