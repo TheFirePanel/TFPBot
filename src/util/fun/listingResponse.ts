@@ -142,7 +142,9 @@ const listingResponse: Utility = {
             const cleanedUrl = word.split("?")[0];
             if (!cleanedUrl) return;
 
-            const domainPage = cleanedUrl.match(/^https?:\/\/(?:www\.)?([^/]+(?:\/[^/]+)*?)\/?(?:\/[^/]+)?$/)?.[1];
+            const domainPage = cleanedUrl
+                .replace(/\/+$/, '')
+                .match(/^https?:\/\/(?:www\.)?([^/]+(?:\/[^/]+)*?)\/?(?:\/[^/]+)?$/)?.[1];
             if (!domainPage) return;
 
             const allowedSite = allowedSites[domainPage];
