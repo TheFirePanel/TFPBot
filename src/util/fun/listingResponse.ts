@@ -16,8 +16,8 @@ type AllowedSites = {
         meta: {
             title: string,
             color: ColorResolvable,
+            domainName: string,
             description?: string,
-            page?: string,
             logoUrl?: string
         },
         url?: { 
@@ -51,12 +51,12 @@ type AllowedSites = {
  * 'image' key will always be set as image
  */
 export const allowedSites: AllowedSites = {
-    'ebay.com': {
+    'ebay.com/itm': {
         meta: {
             title: 'eBay Listing',
             color: 'Yellow',
-            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png',
-            page: 'itm',
+            domainName: 'ebay.com',
+            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
         },
         url: {
             'id': {
@@ -99,7 +99,7 @@ export const allowedSites: AllowedSites = {
                 selector: 'meta[name="twitter:image"]'
             }
         }
-    }
+    },
 };
 
 /**
@@ -119,33 +119,30 @@ const listingResponse: Utility = {
 
         splitContent.forEach((word) => {
             if (!checkUrl(word)) return;
-            // Extract domain and tld
-            const domain = word.replace(/^(?:https?:\/\/)?(?:[^\/]+\.)?([^.\/]+\.[^.\/]+).*$/, "$1");
-            if (!Object.keys(allowedSites).includes(domain)) return;
 
             // Remove the query parameters
             const cleanedUrl = word.split("?")[0];
             if (!cleanedUrl) return;
 
+            const domainPage = cleanedUrl.match(/^https?:\/\/(?:www\.)?([^/]+(?:\/[^/]+)*?)\/?(?:\/[^/]+)?$/)?.[1];
+            if (!domainPage) return;
+
+            const allowedSite = allowedSites[domainPage];
+            if (!allowedSite) return;
+
             // Parse the site
-            parseSite(cleanedUrl, domain)
+            parseSite(allowedSite, cleanedUrl)
                 .then((parsedData) => {
                     if (!parsedData) return;
-                    generateEmbed(message, cleanedUrl, domain, parsedData);
+                    generateEmbed(message, cleanedUrl, allowedSite, parsedData);
                 })
                 .catch(() => {});
         });
     },
 };
 
-async function parseSite(url: string, domain: string): Promise<ParsedData | null> {
-    const allowedSite = allowedSites[domain];
+async function parseSite(allowedSite: AllowedSites[string], url: string): Promise<ParsedData | null> {
     if (!allowedSite) return null;
-    // If we set a page then validate it
-    if (allowedSite.meta.page) {
-        const regex = new RegExp(`/${allowedSite.meta.page}/([^/?]+)`);
-        if (!regex.test(url)) return null;
-    }
     
     const response = await axios.get(url).catch(() => {});
     if (!response) return null;
@@ -201,8 +198,7 @@ async function parseSite(url: string, domain: string): Promise<ParsedData | null
     return parsedData;
 }
 
-async function generateEmbed(message: Message, url: string, domain: string, parsedData: ParsedData) {
-    const allowedSite = allowedSites[domain];
+async function generateEmbed(message: Message, url: string, allowedSite: AllowedSites[string], parsedData: ParsedData) {
     if (!parsedData || !allowedSite) return;
 
     const embed = new EmbedBuilder()
@@ -235,7 +231,7 @@ async function generateEmbed(message: Message, url: string, domain: string, pars
 
     // Create button link
     const button = new ButtonBuilder()
-        .setLabel(domain)
+        .setLabel(allowedSite.meta.domainName)
         .setURL(url)
         .setStyle(ButtonStyle.Link);
     const row = new ActionRowBuilder<ButtonBuilder>()
