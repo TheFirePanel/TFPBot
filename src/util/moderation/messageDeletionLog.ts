@@ -24,7 +24,7 @@ const messageDeletionLog: Utility = {
         if (!message.partial && (message.author?.id === message.client.user.id)) return;
 
         // Check if deleted message was one of our deletions, using listingResponse
-        if (Object.keys(allowedSites).every((site) => { return message.content?.includes(site); })) return;
+        if (Object.keys(allowedSites).some((site) => { return message.content?.includes(site); })) return;
 
         const embed = new EmbedBuilder();
         embed.addFields(
