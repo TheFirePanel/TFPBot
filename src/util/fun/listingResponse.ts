@@ -100,6 +100,24 @@ export const allowedSites: AllowedSites = {
             }
         }
     },
+    'ebay.com/usr': {
+        meta: {
+            title: 'eBay Seller',
+            color: 'Blue',
+            domainName: 'ebay.com',
+            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
+        },
+        html: {
+            'seller_name': {
+                title: '🧍 Seller Name',
+                selector: '.str-seller-card__store-name'
+            },
+            'seller_ratings': {
+                title: '⭐ Ratings',
+                selector: '.str-seller-card__stats-content .str-seller-card__feedback-link'
+            }
+        }
+    }
 };
 
 /**
