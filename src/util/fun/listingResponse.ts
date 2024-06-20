@@ -142,6 +142,10 @@ const listingResponse: Utility = {
             const cleanedUrl = word.split("?")[0];
             if (!cleanedUrl) return;
 
+            /**
+             * Remove trailing slash and match urls like
+             * https://ebay.com/itm/12345678/ = ebay.com/itm
+             */
             const domainPage = cleanedUrl
                 .replace(/\/+$/, '')
                 .match(/^https?:\/\/(?:www\.)?([^/]+(?:\/[^/]+)*?)\/?(?:\/[^/]+)?$/)?.[1];
