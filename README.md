@@ -1,6 +1,9 @@
 # 🔥 TFPBot
 Fully custom typescript based discord bot for The Fire Panel Discord, you can join the discord today https://discord.gg/y87YpNA.
 
+# 🤖 Add the bot
+[Add TFPBot to your server](https://discord.com/oauth2/authorize?client_id=1153506481426137218)
+
 # ⭐ Features
 - Auto loading of commands/utilities/events
 - Database with migration support, uses [Kysely](https://kysely.dev/)
