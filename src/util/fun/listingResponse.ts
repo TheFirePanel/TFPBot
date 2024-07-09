@@ -95,8 +95,8 @@ export const allowedSites: AllowedSites = {
             },
             'image': {
                 title: 'image',
-                prop: 'content',
-                selector: 'meta[name="twitter:image"]'
+                prop: 'data-zoom-src',
+                selector: '.ux-image-carousel-container > .ux-image-carousel > .ux-image-carousel-item:first > img'
             }
         }
     },
