@@ -39,7 +39,10 @@ const insults: { [key: string]: { text: string } } = {
     },
     'ego': {
         text: `I'm not sure which is higher; the Minecraft 1.18 height limit, or %s's ego.`
-    }
+    },
+    '25_years': {
+        text: `%s I've been in the fire alarm industry for 25 years. I forgot that this just an enthusiastic group for some of you individuals so if it's to serious or you don't understand what the professionals talk about on here from time to time.. You don't have to reply you can simply get back to playing Fortnite in your moms basement until your to old to be on her insurance if your aren't already.. Some of us are actually looking out for the next generation while your trying to get to the 999th level of Fortnite with your battle pass purchased on your moms credit card.. 👌(hypothetically speaking)
+DISCLAIMER: My Rizz is both silent and loud AF. If I mistaken anyone's pronouns in this post please know it's not intentional, I'm just not able to read minds...Also Google hypothetically speaking before you come back at me..`
 };
 
 const insultCommand: Command = {
