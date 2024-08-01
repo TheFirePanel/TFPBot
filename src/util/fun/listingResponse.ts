@@ -84,6 +84,10 @@ export const allowedSites: AllowedSites = {
                 title: '💰 Price',
                 selector: '.x-price-primary'
             },
+            'end_time': {
+                title: '⏰ Ends in',
+                selector: '.x-end-time',
+            },
             'shipping': {
                 title: '🚚 Shipping',
                 selector: '.ux-labels-values--shipping .ux-textspans--BOLD',
