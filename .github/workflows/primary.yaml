@@ -23,7 +23,7 @@ jobs:
           npm run build
       - name: Send Discord Message with Build Status
         if: always()
-        uses: slackapi/slack-github-action@v1.26.0
+        uses: slackapi/slack-github-action@v1.27.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
