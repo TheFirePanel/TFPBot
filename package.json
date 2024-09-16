@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src",
     "build": "tsc",
     "watch": "nodemon",
     "deploy": "node --loader ts-node/esm src/deploy.ts",
@@ -14,6 +14,8 @@
   "author": "The Fire Panel",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.10.0",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
     "eslint": "^9.10.0",
