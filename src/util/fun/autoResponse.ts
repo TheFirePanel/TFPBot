@@ -55,13 +55,13 @@ const autoResponse: Utility = {
         if (!message) return;
         if (!message.content) return;
 
-        const caughtResponses: Response[] = []; // Create a temp array
-
         // Store our content
         const content = message.content.toLowerCase();
 
-        // Check each response
-        guildResponses.each((value, key) => {
+        // Used to respond with every valid response, changed with https://github.com/TheFirePanel/TFPBot/issues/195
+
+        // Find the first response and return it
+        const caughtResponse: Response | undefined = guildResponses.find((value, key) => {
             switch(value.type) {
                 case 'word':
                     // Check whole words, includes lets something like test return true for "est"
@@ -71,26 +71,24 @@ const autoResponse: Utility = {
                     if (content !== key) return;
                     break;    
             }
-
-            caughtResponses.push(value);
+            // Exit out of the find function
+            return true;
         });
 
         // If we don't have a response no need to run any further
-        if (!caughtResponses) return;
-        caughtResponses.forEach((response) => {
-            switch(response.response_type) {
-                case 'reaction':
-                    message.react(response.value)
-                        .catch(() => {});
-                    break;
-                case 'message':
-                    message.reply({
-                        content: response.value,
-                        allowedMentions: { repliedUser: false }
-                    }).catch(() => {});
-                    break;    
-            }
-        });
+        if (!caughtResponse) return;
+        switch(caughtResponse.response_type) {
+            case 'reaction':
+                message.react(caughtResponse.value)
+                    .catch(() => {});
+                break;
+            case 'message':
+                message.reply({
+                    content: caughtResponse.value,
+                    allowedMentions: { repliedUser: false }
+                }).catch(() => {});
+                break;    
+        }
     },
 };
 
