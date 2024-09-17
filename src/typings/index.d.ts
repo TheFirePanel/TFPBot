@@ -22,7 +22,7 @@ declare module 'discord.js' {
         getConfig(): typeof globalConfig, // All global commands
         getConfig(option?: null, guild: string): Collection<keyof typeof globalConfig , string>, // All guild commands with global
         getConfig(option?: keyof typeof globalConfig | null, guild?: string): string | undefined, // Specific command with guild
-        refreshConfig(): Promise<void>
+        refreshConfig(guilds?: string[]): Promise<void>
     }
 }
 

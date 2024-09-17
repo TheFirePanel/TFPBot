@@ -65,12 +65,19 @@ for (const [option, value] of Object.entries(globalConfig)) {
     storedConfig['GLOBAL']?.set(option, value);
 }
 
-client.refreshConfig = async function() {
-    console.log(color.yellow(`Got request to refresh/load config from database`));
-    await client.db
+client.refreshConfig = async function(guilds?: string[]) {
+    console.log(color.yellow('Got request to refresh/load config from database'));
+    // Setup db query
+    let query = client.db
         .selectFrom('configs')
-        .selectAll()
-        .execute()
+        .selectAll();
+    // If we get sent a list of guilds then just set the cache to be only those, useful for sharding if we ever do it
+    if (guilds) {
+        console.log(color.yellow('Getting config data for specific guilds', guilds));
+        query = query.where('guild_id', 'in', guilds);
+    }
+    // Run the db query
+    await query.execute()
         .catch(console.error)
         .then((configs) => {
             if (!configs) return;
@@ -125,6 +132,18 @@ client.getConfig = function (option?: keyof typeof globalConfig | null, guild?: 
 
     const configOption = config?.get(option);
     return configOption ? configOption : storedConfig['GLOBAL'].get(option);
+};
+
+export const defaultUserConfig = {
+    // autoReaction
+    'allowReactions': {
+        description: 'Allow the bot to react to your messages if a configured keyword is found.',
+        value: true
+    },
+    'allowResponses': {
+        description: 'Allow the bot to respond to your messages if a configured keyword is found.',
+        value: true
+    }
 };
 
 // #endregion Bot settings logic
