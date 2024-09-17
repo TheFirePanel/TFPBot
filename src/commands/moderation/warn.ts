@@ -113,6 +113,7 @@ async function addWarning(guild: Guild, interaction: ChatInputCommandInteraction
 
     const displayWarning = interaction.options.get('public')?.value;
     if (displayWarning) {
+        if (!interaction.channel?.isSendable()) return;
         interaction.channel?.send({
             content: `<@${warnUser.id}>`,
             embeds: [

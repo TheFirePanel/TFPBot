@@ -227,6 +227,7 @@ async function parseSite(allowedSite: AllowedSites[string], url: string): Promis
 }
 
 async function generateEmbed(message: Message, url: string, allowedSite: AllowedSites[string], parsedData: ParsedData) {
+    if (!message.channel?.isSendable()) return;
     if (!parsedData || !allowedSite) return;
 
     const embed = new EmbedBuilder()
@@ -264,7 +265,7 @@ async function generateEmbed(message: Message, url: string, allowedSite: Allowed
         .setStyle(ButtonStyle.Link);
     const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(button);
-
+        
     message.channel.send({
         components: [row],
         embeds: [embed],
