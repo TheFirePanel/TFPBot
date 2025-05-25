@@ -44,6 +44,60 @@ type AllowedSites = {
     }
 }
 
+const ebayConfig: AllowedSites[''] = {
+    meta: {
+        title: 'eBay Listing',
+        color: 'Yellow',
+        domainName: 'ebay.com',
+        logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
+    },
+    url: {
+        'id': {
+            title: '🏷️ ID',
+            value: (url: string) => {
+                const id = url.match(/\/(\d+)/);
+                return id ? id[1] : null; 
+            }
+        }
+    },
+    html: {
+        'item_name': {
+            title: '📦 Item Name',
+            selector: '.x-item-title__mainTitle > span'
+        },
+        'seller_name': {
+            title: '🧍 Seller Name',
+            selector: '.x-sellercard-atf__info__about-seller > a > span'
+        },
+        'condition': {
+            title: '⛓️‍💥 Condition',
+            selector: '.x-item-condition-text .ux-textspans'
+        },
+        'price': {
+            title: '💰 Price',
+            selector: '.x-price-primary'
+        },
+        'end_time': {
+            title: '⏰ Ends in',
+            selector: '.x-end-time',
+        },
+        'shipping': {
+            title: '🚚 Shipping',
+            selector: '.ux-labels-values--shipping .ux-textspans--BOLD',
+            func: (text) => {
+                return (text.toLocaleLowerCase() === 'free') 
+                    ? text
+                    : 'See listing';
+            }
+        },
+        'image': {
+            title: 'image',
+            prop: 'data-zoom-src',
+            selector: '.ux-image-carousel-container > .ux-image-carousel > .ux-image-carousel-item:first > img'
+        }
+    }
+};
+
 /**
  * url: Function code to grab any elements from the url
  * html: Provide any selectors for grabbing content from html
@@ -51,59 +105,8 @@ type AllowedSites = {
  * 'image' key will always be set as image
  */
 export const allowedSites: AllowedSites = {
-    'ebay.com/itm': {
-        meta: {
-            title: 'eBay Listing',
-            color: 'Yellow',
-            domainName: 'ebay.com',
-            logoUrl: 'https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-1200x630-margin.png'
-        },
-        url: {
-            'id': {
-                title: '🏷️ ID',
-                value: (url: string) => {
-                    const id = url.match(/\/(\d+)/);
-                    return id ? id[1] : null; 
-                }
-            }
-        },
-        html: {
-            'item_name': {
-                title: '📦 Item Name',
-                selector: '.x-item-title__mainTitle > span'
-            },
-            'seller_name': {
-                title: '🧍 Seller Name',
-                selector: '.x-sellercard-atf__info__about-seller > a > span'
-            },
-            'condition': {
-                title: '⛓️‍💥 Condition',
-                selector: '.x-item-condition-text .ux-textspans'
-            },
-            'price': {
-                title: '💰 Price',
-                selector: '.x-price-primary'
-            },
-            'end_time': {
-                title: '⏰ Ends in',
-                selector: '.x-end-time',
-            },
-            'shipping': {
-                title: '🚚 Shipping',
-                selector: '.ux-labels-values--shipping .ux-textspans--BOLD',
-                func: (text) => {
-                    return (text.toLocaleLowerCase() === 'free') 
-                        ? text
-                        : 'See listing';
-                }
-            },
-            'image': {
-                title: 'image',
-                prop: 'data-zoom-src',
-                selector: '.ux-image-carousel-container > .ux-image-carousel > .ux-image-carousel-item:first > img'
-            }
-        }
-    },
+    'ebay.com/itm': ebayConfig,
+    'ebay.us/m': ebayConfig,
     'ebay.com/usr': {
         meta: {
             title: 'eBay Seller',
@@ -227,6 +230,7 @@ async function parseSite(allowedSite: AllowedSites[string], url: string): Promis
 }
 
 async function generateEmbed(message: Message, url: string, allowedSite: AllowedSites[string], parsedData: ParsedData) {
+    if (!message.channel?.isSendable()) return;
     if (!parsedData || !allowedSite) return;
 
     const embed = new EmbedBuilder()
@@ -264,7 +268,7 @@ async function generateEmbed(message: Message, url: string, allowedSite: Allowed
         .setStyle(ButtonStyle.Link);
     const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(button);
-
+        
     message.channel.send({
         components: [row],
         embeds: [embed],
