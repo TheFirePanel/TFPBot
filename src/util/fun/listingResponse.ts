@@ -106,6 +106,7 @@ const ebayConfig: AllowedSites[''] = {
  */
 export const allowedSites: AllowedSites = {
     'ebay.com/itm': ebayConfig,
+    'ebay.ca/itm': ebayConfig,
     'ebay.us/m': ebayConfig,
     'ebay.com/usr': {
         meta: {
