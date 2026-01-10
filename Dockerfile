@@ -1,4 +1,4 @@
-FROM    node:18-alpine as build-stage
+FROM    node:20-alpine as build-stage
 
 WORKDIR /build
 COPY    . .
@@ -6,7 +6,7 @@ COPY    . .
 RUN     npm ci
 RUN     npm run build
 
-FROM    node:18-alpine as production-stage
+FROM    node:20-alpine as production-stage
 
 RUN     apk update \
         && apk add ca-certificates  \
