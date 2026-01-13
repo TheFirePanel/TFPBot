@@ -73,7 +73,7 @@ jobs:
       - name: Push changes to Git
         run: git push
       - name: Send Discord Message with Versioning Status
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.1.1
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
