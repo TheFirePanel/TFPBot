@@ -28,7 +28,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Get Current Version
         id: getVersion
         run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Configure NodeJS
         if: inputs.versionOverride == ''
         uses: actions/setup-node@v4
