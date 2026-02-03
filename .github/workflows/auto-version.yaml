@@ -72,13 +72,12 @@ jobs:
         run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
       - name: Push changes to Git
         run: git push
-      - name: Send Discord Message with Versioning Status
-        uses: slackapi/slack-github-action@v1.27.0
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send Discord Message with Build Status
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
         with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
           payload: |
-            {
               "text": "${{ github.event.repository.name }} - Set Version to ${{ steps.getVersion.outputs.version }}"
-            }
       
