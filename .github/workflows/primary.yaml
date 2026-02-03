@@ -25,11 +25,9 @@ jobs:
           npm run build
       - name: Send Discord Message with Build Status
         if: always()
-        uses: slackapi/slack-github-action@v1.27.0
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: slackapi/slack-github-action@v2.1.1
         with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
           payload: |
-            {
               "text": "${{ github.event.repository.name }} - Build and Test Bot - ${{ job.status }}\nOn Branch: ${{ github.ref }}\nBy: ${{ github.event.head_commit.author.name }}"
-            }
