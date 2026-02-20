@@ -15,11 +15,11 @@
   "license": "MIT",
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@eslint/js": "^9.39.2",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.47.0",
     "@typescript-eslint/utils": "^8.47.0",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.1",
     "kysely-codegen": "^0.20.0",
     "nodemon": "^3.1.11",
     "typescript": "^5.9.3"
