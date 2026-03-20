@@ -188,7 +188,7 @@ async function parseSite(allowedSite: AllowedSites[string], url: string): Promis
         for (const [key, el] of Object.entries(allowedSite.html)) {
             const selected = $(el?.selector);
 
-            let value = null;
+            let value;
             if (el.prop) {
                 value = selected.prop(el.prop);
             } else {
