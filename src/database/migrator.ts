@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import {
   Migrator,
   type Migration
-} from 'kysely';
+} from 'kysely/migration';
 import { db } from './database.js';
 import { getFiles, getFileName } from '../helpers.js';
 
